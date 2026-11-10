@@ -1,5 +1,6 @@
 package com.okulzili.app
 
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -67,6 +68,17 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
         } else {
             try {
                 val slots = JSONObject(raw).optJSONArray(day) ?: JSONArray()
+                val noteLines = mutableListOf<String>()
+                for (j in 0 until slots.length()) {
+                    val noteSlot = slots.optJSONObject(j) ?: continue
+                    val note = noteSlot.optString("notes").trim()
+                    if (note.isNotBlank()) noteLines.add("${noteSlot.optString("start")} ${noteSlot.optString("title")}: $note")
+                }
+                val dailyNotes = when {
+                    noteLines.isEmpty() -> "Bugün ekli ders notu yok."
+                    noteLines.size <= 2 -> noteLines.joinToString("\n")
+                    else -> noteLines.take(2).joinToString("\n") + "\n+${noteLines.size - 2} not daha"
+                }
                 var current: JSONObject? = null
                 var next: JSONObject? = null
                 for (i in 0 until slots.length()) {
@@ -90,7 +102,7 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
                     val nextTitle = next?.optString("title")?.takeIf { it.isNotBlank() }
                     val nextText = if (nextTitle != null) " • Sırada: $nextTitle" else ""
                     views.setTextViewText(R.id.widget_next, "Bitiş ${current.optString("end")}$nextText")
-                    views.setTextViewText(R.id.widget_note, current.optString("notes").ifBlank { "Bu ders için not yok." })
+                    views.setTextViewText(R.id.widget_note, dailyNotes)
                 } else if (next != null) {
                     views.setTextViewText(R.id.widget_status, "SIRADAKİ DERS")
                     val untilStartMs = ((toMinutes(next.optString("start")) - now) * 60_000L - cal.get(Calendar.SECOND) * 1000L).coerceAtLeast(0L)
@@ -98,12 +110,12 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
                     views.setChronometer(R.id.widget_countdown, SystemClock.elapsedRealtime() + untilStartMs, null, true)
                     views.setTextViewText(R.id.widget_lesson, next.optString("title", "Ders"))
                     views.setTextViewText(R.id.widget_next, "Başlangıç ${next.optString("start")}")
-                    views.setTextViewText(R.id.widget_note, next.optString("notes").ifBlank { "Ekli ders notu yok." })
+                    views.setTextViewText(R.id.widget_note, dailyNotes)
                 } else {
                     views.setTextViewText(R.id.widget_status, "GÜN TAMAMLANDI")
                     views.setTextViewText(R.id.widget_lesson, "Dersler bitti")
                     views.setTextViewText(R.id.widget_next, "Yarın görüşürüz.")
-                    views.setTextViewText(R.id.widget_note, "")
+                    views.setTextViewText(R.id.widget_note, dailyNotes)
                 }
             } catch (_: Exception) {
                 views.setTextViewText(R.id.widget_status, "PROGRAM")
