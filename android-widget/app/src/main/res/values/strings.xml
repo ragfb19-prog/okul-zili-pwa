@@ -1,1 +1,4 @@
-<resources><string name="app_name">Okul Zili</string><string name="widget_description">Ders ve teneffüs geri sayımı</string></resources>
+<resources>
+    <string name="app_name">Okul Zili</string>
+    <string name="widget_description">Ders ve teneffüs geri sayımı</string>
+</resources>
