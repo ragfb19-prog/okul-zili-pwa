@@ -24,6 +24,10 @@
         android:layout_height="wrap_content" android:layout_marginTop="2dp"
         android:text="Program yükleniyor" android:textColor="#FFFFFF"
         android:textStyle="bold" android:textSize="20sp" android:maxLines="1" />
+    <Chronometer android:id="@+id/widget_countdown" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="5dp"
+        android:countDown="true" android:text="--:--" android:textColor="#FDE68A"
+        android:textSize="27sp" android:textStyle="bold" />
     <TextView android:id="@+id/widget_next" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:layout_marginTop="3dp"
         android:text="Sonraki: --" android:textColor="#CBD5E1"
