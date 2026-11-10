@@ -1,6 +1,11 @@
 name: Build Android app and widget
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'android-widget/**'
+      - '.github/workflows/build-android-widget.yml'
 permissions:
   contents: read
 jobs:
