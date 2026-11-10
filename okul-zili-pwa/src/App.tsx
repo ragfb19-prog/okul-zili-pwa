@@ -129,6 +129,15 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  // Android ana ekran widget'ına ilk açılışta ve her program değişikliğinde veri aktar.
+  useEffect(() => {
+    try {
+      (window as any).SchoolBellWidget?.updateSchedule?.(JSON.stringify(scheduleData));
+    } catch (e) {
+      console.warn('Android widget verisi gönderilemedi:', e);
+    }
+  }, [scheduleData]);
+
   // Komutu çizelgeye uygula
   const applyCommand = useCallback(
     (action: RemoteAction) => {
