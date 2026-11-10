@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import android.os.SystemClock
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Calendar
@@ -51,6 +52,7 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
         val now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
         views.setTextViewText(R.id.widget_clock, String.format("%02d:%02d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE)))
         views.setTextViewText(R.id.widget_day, day ?: "Hafta sonu")
+        views.setViewVisibility(R.id.widget_countdown, android.view.View.GONE)
 
         if (day == null) {
             views.setTextViewText(R.id.widget_status, "HAFTA SONU")
@@ -81,6 +83,9 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
 
                 if (current != null) {
                     views.setTextViewText(R.id.widget_status, "ŞU AN")
+                    val remainingMs = ((toMinutes(current.optString("end")) - now) * 60_000L - cal.get(Calendar.SECOND) * 1000L).coerceAtLeast(0L)
+                    views.setViewVisibility(R.id.widget_countdown, android.view.View.VISIBLE)
+                    views.setChronometer(R.id.widget_countdown, SystemClock.elapsedRealtime() + remainingMs, null, true)
                     views.setTextViewText(R.id.widget_lesson, current.optString("title", "Ders"))
                     val nextTitle = next?.optString("title")?.takeIf { it.isNotBlank() }
                     val nextText = if (nextTitle != null) " • Sırada: $nextTitle" else ""
@@ -88,6 +93,9 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.widget_note, current.optString("notes").ifBlank { "Bu ders için not yok." })
                 } else if (next != null) {
                     views.setTextViewText(R.id.widget_status, "SIRADAKİ DERS")
+                    val untilStartMs = ((toMinutes(next.optString("start")) - now) * 60_000L - cal.get(Calendar.SECOND) * 1000L).coerceAtLeast(0L)
+                    views.setViewVisibility(R.id.widget_countdown, android.view.View.VISIBLE)
+                    views.setChronometer(R.id.widget_countdown, SystemClock.elapsedRealtime() + untilStartMs, null, true)
                     views.setTextViewText(R.id.widget_lesson, next.optString("title", "Ders"))
                     views.setTextViewText(R.id.widget_next, "Başlangıç ${next.optString("start")}")
                     views.setTextViewText(R.id.widget_note, next.optString("notes").ifBlank { "Ekli ders notu yok." })
