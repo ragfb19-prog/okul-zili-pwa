@@ -1,0 +1,28 @@
+name: Unpack PWA source
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract project archive into repository root
+        run: |
+          test -f okul-zili-pwa.zip
+          mkdir -p /tmp/okul-zili
+          unzip -oq okul-zili-pwa.zip -d /tmp/okul-zili
+          cp -a /tmp/okul-zili/. .
+          rm -f okul-zili-pwa.zip
+      - name: Commit extracted project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Extract PWA project source"
+            git push
+          fi
