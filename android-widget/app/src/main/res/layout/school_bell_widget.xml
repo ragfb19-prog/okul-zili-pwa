@@ -1,8 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
- android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
- android:orientation="vertical" android:padding="14dp" android:background="#172554">
- <TextView android:id="@+id/widget_day" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="OKUL ZİLİ" android:textColor="#BFDBFE" android:textSize="12sp"/>
- <TextView android:id="@+id/widget_lesson" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Program yükleniyor" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="19sp" android:maxLines="1"/>
- <Chronometer android:id="@+id/widget_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="--:--" android:textColor="#FDE68A" android:textSize="28sp" android:textStyle="bold"/>
- <TextView android:id="@+id/widget_next" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sonraki: --" android:textColor="#DBEAFE" android:textSize="13sp" android:maxLines="1"/>
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="14dp"
+    android:background="#111827">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical" android:orientation="horizontal">
+        <TextView android:id="@+id/widget_day" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="OKUL ZİLİ" android:textColor="#A5B4FC"
+            android:textSize="11sp" android:textStyle="bold" />
+        <TextView android:id="@+id/widget_clock" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="08:40"
+            android:textColor="#FFFFFF" android:textSize="15sp" android:textStyle="bold" />
+    </LinearLayout>
+    <TextView android:id="@+id/widget_status" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="5dp"
+        android:text="CANLI DERS PROGRAMI" android:textColor="#A5B4FC"
+        android:textSize="10sp" android:textStyle="bold" />
+    <TextView android:id="@+id/widget_lesson" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="2dp"
+        android:text="Program yükleniyor" android:textColor="#FFFFFF"
+        android:textStyle="bold" android:textSize="20sp" android:maxLines="1" />
+    <TextView android:id="@+id/widget_next" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="3dp"
+        android:text="Sonraki: --" android:textColor="#CBD5E1"
+        android:textSize="11sp" android:maxLines="1" />
+    <TextView android:id="@+id/widget_note" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="7dp"
+        android:text="Ders notları burada görünür." android:textColor="#FDE68A"
+        android:textSize="11sp" android:maxLines="2" android:ellipsize="end" />
 </LinearLayout>
