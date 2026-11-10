@@ -7,6 +7,9 @@ on:
       - 'android-widget/**'
       - 'okul-zili-pwa/src/App.tsx'
       - '.github/workflows/build-android-widget.yml'
+concurrency:
+  group: android-widget-release
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
