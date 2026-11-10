@@ -93,6 +93,18 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
                     if (start > now && next == null) next = item
                 }
 
+                val transitionMinute = if (current != null) toMinutes(current.optString("end")) else next?.let { toMinutes(it.optString("start")) }
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val refreshIntent = Intent(ACTION_REFRESH).setPackage(context.packageName)
+                val refreshPending = PendingIntent.getBroadcast(context, 101, refreshIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                if (transitionMinute != null && transitionMinute > now) {
+                    val delay = (transitionMinute - now) * 60_000L - cal.get(Calendar.SECOND) * 1000L
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay, refreshPending)
+                } else {
+                    alarmManager.cancel(refreshPending)
+                }
+
                 if (current != null) {
                     views.setTextViewText(R.id.widget_status, "ŞU AN")
                     val remainingMs = ((toMinutes(current.optString("end")) - now) * 60_000L - cal.get(Calendar.SECOND) * 1000L).coerceAtLeast(0L)
