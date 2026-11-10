@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebSettings;
 import android.webkit.JavascriptInterface;
 
 public class MainActivity extends Activity {
@@ -14,6 +15,7 @@ public class MainActivity extends Activity {
         setContentView(web);
         web.getSettings().setJavaScriptEnabled(true);
         web.getSettings().setDomStorageEnabled(true);
+        web.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         web.setWebViewClient(new WebViewClient() {
             @Override public void onPageFinished(WebView view, String url) {
                 String js = "(function(){"

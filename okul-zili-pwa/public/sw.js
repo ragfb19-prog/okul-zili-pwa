@@ -1,4 +1,4 @@
-const CACHE_NAME = 'okul-zili-pwa-v1';
+const CACHE_NAME = 'okul-zili-pwa-v2';
 const APP_SHELL = ['/', '/manifest.json', '/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png'];
 
 self.addEventListener('install', (event) => {

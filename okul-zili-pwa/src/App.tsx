@@ -45,6 +45,7 @@ export default function App() {
   });
 
   const [now, setNow] = useState<Date>(new Date());
+  const [isOnline, setIsOnline] = useState<boolean>(() => typeof navigator === 'undefined' ? true : navigator.onLine);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isWidgetModeOpen, setIsWidgetModeOpen] = useState<boolean>(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState<boolean>(false);
@@ -79,6 +80,18 @@ export default function App() {
       }
     );
     return () => unsubscribe();
+  }, []);
+
+  // Çevrimiçi / çevrimdışı durumunu izle
+  useEffect(() => {
+    const online = () => setIsOnline(true);
+    const offline = () => setIsOnline(false);
+    window.addEventListener('online', online);
+    window.addEventListener('offline', offline);
+    return () => {
+      window.removeEventListener('online', online);
+      window.removeEventListener('offline', offline);
+    };
   }, []);
 
   // Otomatik Geri Sayım ve Saat Güncellemesi
@@ -362,8 +375,8 @@ export default function App() {
                 {now.toLocaleTimeString('tr-TR')}
               </span>
               <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-medium inline-flex items-center gap-1 justify-end">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Çevrimiçi</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
+                <span>{isOnline ? "Çevrimiçi" : "Çevrimdışı · Yerel program"}</span>
               </span>
             </div>
 
