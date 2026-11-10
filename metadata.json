@@ -1,0 +1,6 @@
+{
+  "name": "Program - Canlı Okul & Gemini Asistanı",
+  "description": "Canlı ders zili geri sayımı, Danişment okul ders programı çizelgesi ve Gemini destekli Türkçe sesli/yazılı ders asistanı.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
