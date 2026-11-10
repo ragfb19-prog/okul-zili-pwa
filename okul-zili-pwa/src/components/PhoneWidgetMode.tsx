@@ -73,6 +73,7 @@ export const PhoneWidgetMode: React.FC<Props> = ({
 
   const firstSlot = todaySlots[0];
   const lastSlot = todaySlots[todaySlots.length - 1];
+  const dailyNotes = todaySlots.filter((slot) => Boolean(slot.notes?.trim()));
 
   const firstSlotSec = firstSlot ? timeToSeconds(firstSlot.start) : 0;
   const lastSlotSec = lastSlot ? timeToSeconds(lastSlot.end) : 0;
@@ -231,6 +232,24 @@ export const PhoneWidgetMode: React.FC<Props> = ({
           <ArrowRight className="w-4 h-4 text-indigo-400 shrink-0" />
           <span>{subText}</span>
         </div>
+
+        {/* Günlük Notlar: yalnızca aktif ders değil, günün tüm notları */}
+        {dailyNotes.length > 0 && (
+          <section className="w-full rounded-2xl border border-amber-400/20 bg-amber-400/10 px-3 py-2.5 text-left">
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-200">📝 Günün Notları</span>
+              <span className="rounded-full bg-amber-300/15 px-2 py-0.5 text-[10px] font-semibold text-amber-100">{dailyNotes.length} not</span>
+            </div>
+            <div className="max-h-24 space-y-1.5 overflow-y-auto pr-1">
+              {dailyNotes.map((slot) => (
+                <div key={slot.id} className="flex items-start gap-2 text-[11px] leading-snug text-slate-100">
+                  <span className="shrink-0 font-mono font-bold text-amber-200">{slot.start}</span>
+                  <span className="min-w-0"><strong className="text-white">{slot.title}:</strong> {slot.notes}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* İlerleme Çubuğu */}
         <div className="w-full space-y-1.5 pt-2">
