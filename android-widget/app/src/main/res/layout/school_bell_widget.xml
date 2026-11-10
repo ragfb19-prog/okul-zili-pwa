@@ -1,0 +1,8 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
+ android:orientation="vertical" android:padding="14dp" android:background="#172554">
+ <TextView android:id="@+id/widget_day" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="OKUL ZİLİ" android:textColor="#BFDBFE" android:textSize="12sp"/>
+ <TextView android:id="@+id/widget_lesson" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Program yükleniyor" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="19sp" android:maxLines="1"/>
+ <Chronometer android:id="@+id/widget_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="--:--" android:textColor="#FDE68A" android:textSize="28sp" android:textStyle="bold"/>
+ <TextView android:id="@+id/widget_next" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sonraki: --" android:textColor="#DBEAFE" android:textSize="13sp" android:maxLines="1"/>
+</LinearLayout>
