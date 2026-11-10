@@ -102,7 +102,10 @@ export default function App() {
   const saveSchedule = useCallback((updated: WeekSchedule) => {
     setScheduleData(updated);
     try {
-      localStorage.setItem('danisment_schedule_data', JSON.stringify(updated));
+      const serialized = JSON.stringify(updated);
+      localStorage.setItem('danisment_schedule_data', serialized);
+      // Native Android widget schedule bridge (available only inside the APK).
+      (window as any).SchoolBellWidget?.updateSchedule?.(serialized);
     } catch (e) {
       console.warn('Veri kaydedilemedi:', e);
     }
