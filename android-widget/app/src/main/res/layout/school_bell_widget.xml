@@ -35,5 +35,5 @@
     <TextView android:id="@+id/widget_note" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:layout_marginTop="7dp"
         android:text="Ders notları burada görünür." android:textColor="#FDE68A"
-        android:textSize="11sp" android:maxLines="2" android:ellipsize="end" />
+        android:textSize="10sp" android:maxLines="3" android:ellipsize="end" />
 </LinearLayout>
