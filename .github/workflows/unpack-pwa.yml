@@ -5,18 +5,26 @@ permissions:
   contents: write
 jobs:
   unpack:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract project archive into repository root
+      - name: Inspect and extract uploaded archive
+        shell: bash
         run: |
-          test -f okul-zili-pwa.zip
+          set -euxo pipefail
+          pwd
+          ls -lah
+          find . -maxdepth 2 -type f | sort
+          ARCHIVE="$(find . -maxdepth 2 -type f -iname '*.zip' | head -n 1)"
+          test -n "$ARCHIVE"
+          unzip -t "$ARCHIVE"
           mkdir -p /tmp/okul-zili
-          unzip -oq okul-zili-pwa.zip -d /tmp/okul-zili
+          unzip -o "$ARCHIVE" -d /tmp/okul-zili
+          find /tmp/okul-zili -maxdepth 3 -type f | sort
           cp -a /tmp/okul-zili/. .
-          rm -f okul-zili-pwa.zip
+          rm -f "$ARCHIVE"
       - name: Commit extracted project
         run: |
           git config user.name "github-actions[bot]"
