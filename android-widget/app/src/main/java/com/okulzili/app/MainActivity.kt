@@ -14,6 +14,13 @@ class MainActivity : Activity() {
 
     inner class WidgetBridge {
         @JavascriptInterface
+        fun updateNotes(json: String) {
+            getSharedPreferences(SchoolBellWidgetProvider.PREFS, Context.MODE_PRIVATE)
+                .edit().putString(SchoolBellWidgetProvider.KEY_NOTES, json).apply()
+            sendBroadcast(Intent(SchoolBellWidgetProvider.ACTION_REFRESH).setPackage(packageName))
+        }
+
+        @JavascriptInterface
         fun updateSchedule(json: String) {
             getSharedPreferences(SchoolBellWidgetProvider.PREFS, Context.MODE_PRIVATE)
                 .edit()
