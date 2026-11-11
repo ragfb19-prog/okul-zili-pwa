@@ -1,11 +1,14 @@
-name: Build Android app and widget
+name: Build offline Android app and widget
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
       - 'android-widget/**'
-      - 'okul-zili-pwa/src/App.tsx'
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'vite.config.ts'
       - '.github/workflows/build-android-widget.yml'
 concurrency:
   group: android-widget-release
@@ -17,6 +20,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install web dependencies
+        run: npm install --legacy-peer-deps
+      - name: Build offline web app
+        run: npm run build -- --base=./
+      - name: Bundle web app into Android assets
+        run: |
+          mkdir -p android-widget/app/src/main/assets/www
+          cp -R dist/. android-widget/app/src/main/assets/www/
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -33,15 +47,15 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: okul-zili-android-widget-apk
+          name: okul-zili-offline-android-apk
           path: android-widget/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
-      - name: Publish APK release
+      - name: Publish offline APK release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: okul-zili-widget-v1.1.0
-          name: Okul Zili Android Widget v1.1.0
-          body: Android uygulaması ve ana ekran ders programı widget'ı.
+          tag_name: okul-zili-widget-v1.2.0
+          name: Okul Zili Android Offline v1.2.0
+          body: Okul Zili arayüzü APK içine gömülüdür; uygulama açılışında Render sunucusunu beklemez. İnternet gerektiren Gemini komutları ve Google Takvim eşitlemesi çevrimiçi bağlantı ister.
           files: android-widget/app/build/outputs/apk/debug/app-debug.apk
           make_latest: true
