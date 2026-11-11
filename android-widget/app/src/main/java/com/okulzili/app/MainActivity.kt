@@ -21,6 +21,13 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
+        fun setWidgetTransparency(enabled: Boolean) {
+            getSharedPreferences(SchoolBellWidgetProvider.PREFS, Context.MODE_PRIVATE)
+                .edit().putBoolean(SchoolBellWidgetProvider.KEY_TRANSPARENT, enabled).apply()
+            sendBroadcast(Intent(SchoolBellWidgetProvider.ACTION_REFRESH).setPackage(packageName))
+        }
+
+        @JavascriptInterface
         fun updateSchedule(json: String) {
             getSharedPreferences(SchoolBellWidgetProvider.PREFS, Context.MODE_PRIVATE)
                 .edit()
