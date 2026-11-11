@@ -1,1 +1,54 @@
 @import "tailwindcss";
+
+/* Warm, playful classroom atmosphere */
+html {
+  min-height: 100%;
+  background: #f8f5ec;
+}
+
+body {
+  min-height: 100vh;
+  background: #f8f5ec;
+}
+
+.school-background {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background-color: #f8f5ec;
+  background-image:
+    radial-gradient(ellipse at 8% 12%, rgba(255, 211, 120, 0.28) 0, rgba(255, 211, 120, 0.28) 7%, transparent 7.3%),
+    radial-gradient(ellipse at 94% 24%, rgba(133, 197, 174, 0.22) 0, rgba(133, 197, 174, 0.22) 8%, transparent 8.3%),
+    radial-gradient(ellipse at 12% 82%, rgba(164, 190, 235, 0.22) 0, rgba(164, 190, 235, 0.22) 9%, transparent 9.3%),
+    radial-gradient(ellipse at 88% 88%, rgba(244, 171, 157, 0.20) 0, rgba(244, 171, 157, 0.20) 8%, transparent 8.3%),
+    linear-gradient(135deg, #fbf8ef 0%, #f4f7f1 48%, #f8f2eb 100%);
+}
+
+.school-background::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.34;
+  background-image:
+    radial-gradient(circle, #d6b66d 1.3px, transparent 1.6px),
+    radial-gradient(circle, #8eb7a7 1.1px, transparent 1.5px);
+  background-size: 34px 34px, 47px 47px;
+  background-position: 3px 8px, 19px 24px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+
+.school-background::after {
+  content: "✦     ABC     ✎                              ★";
+  position: fixed;
+  top: 88px;
+  right: 3vw;
+  z-index: -1;
+  pointer-events: none;
+  color: rgba(170, 143, 91, 0.12);
+  font-size: clamp(18px, 3vw, 30px);
+  font-weight: 800;
+  letter-spacing: 1.2rem;
+  white-space: pre;
+}
