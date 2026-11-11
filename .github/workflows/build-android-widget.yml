@@ -56,8 +56,8 @@ jobs:
       - name: Publish offline APK release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: okul-zili-widget-v1.2.0
-          name: Okul Zili Android Offline v1.2.0
-          body: Okul Zili arayüzü APK içine gömülüdür; uygulama açılışında Render sunucusunu beklemez. İnternet gerektiren Gemini komutları ve Google Takvim eşitlemesi çevrimiçi bağlantı ister.
+          tag_name: okul-zili-widget-v1.2.1
+          name: Okul Zili Android Offline v1.2.1
+          body: WebView local ES module loading fixed. App UI is bundled in APK and does not depend on Render at startup. Gemini commands and Google Calendar sync require internet.
           files: android-widget/app/build/outputs/apk/debug/app-debug.apk
           make_latest: true
