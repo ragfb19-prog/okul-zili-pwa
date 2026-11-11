@@ -17,6 +17,7 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
     companion object {
         const val PREFS = "school_bell_widget"
         const val KEY_SCHEDULE = "schedule_json"
+        const val KEY_NOTES = "quick_notes_json"
         const val ACTION_REFRESH = "com.okulzili.app.REFRESH_WIDGET"
 
         private val dayNames = mapOf(
@@ -53,6 +54,12 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
         val now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
         views.setTextViewText(R.id.widget_clock, String.format("%02d:%02d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE)))
         views.setTextViewText(R.id.widget_day, day ?: "Hafta sonu")
+        val quickNotes = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_NOTES, "[]")
+        val notePreview = try {
+            val notes = JSONArray(quickNotes ?: "[]")
+            if (notes.length() == 0) "Hızlı not: Uygulamadan not ekleyin" else "Not: " + notes.optString(0)
+        } catch (_: Exception) { "Hızlı notlar" }
+        views.setTextViewText(R.id.widget_quick_note, notePreview)
         views.setViewVisibility(R.id.widget_countdown, android.view.View.GONE)
 
         if (day == null) {
