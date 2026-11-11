@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  CalendarCheck,
+  School,
   Volume2,
   VolumeX,
   Bell,
@@ -26,10 +26,7 @@ import { playSchoolBell } from './utils/audio';
 import { LiveCountdownWidget } from './components/LiveCountdownWidget';
 import { ScheduleList } from './components/ScheduleList';
 import { PhoneWidgetMode } from './components/PhoneWidgetMode';
-import { CalendarSyncModal } from './components/CalendarSyncModal';
 import { TeacherTools } from './components/TeacherTools';
-import { initAuth } from './services/firebaseAuth';
-import { User } from 'firebase/auth';
 
 export default function App() {
   const [scheduleData, setScheduleData] = useState<WeekSchedule>(() => {
@@ -49,11 +46,6 @@ export default function App() {
   const [isOnline, setIsOnline] = useState<boolean>(() => typeof navigator === 'undefined' ? true : navigator.onLine);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isWidgetModeOpen, setIsWidgetModeOpen] = useState<boolean>(false);
-  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState<boolean>(false);
-
-  // Google Workspace Auth State (In-Memory token caching)
-  const [googleUser, setGoogleUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // Gemini Sesli & Yazılı Asistan State
   const [isListening, setIsListening] = useState<boolean>(false);
@@ -67,21 +59,6 @@ export default function App() {
   const prevPeriodRef = useRef<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const recognitionRef = useRef<any>(null);
-
-  // Firebase Auth Listener
-  useEffect(() => {
-    const unsubscribe = initAuth(
-      (user, token) => {
-        setGoogleUser(user);
-        setAccessToken(token);
-      },
-      () => {
-        setGoogleUser(null);
-        setAccessToken(null);
-      }
-    );
-    return () => unsubscribe();
-  }, []);
 
   // Çevrimiçi / çevrimdışı durumunu izle
   useEffect(() => {
@@ -367,17 +344,17 @@ export default function App() {
     <div className="school-background text-slate-800 min-h-screen flex flex-col font-sans">
       {/* Üst Bar */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-100">
-              <CalendarCheck className="w-6 h-6" />
+              <School className="w-6 h-6" />
             </div>
             <div>
               <h1 className="font-bold text-lg sm:text-xl tracking-tight text-slate-900 leading-none">
                 Program
               </h1>
               <span className="text-[11px] text-slate-500 font-medium">
-                Canlı Okul Zili & Gemini Asistanı
+                Akıllı Ders Programı ve Okul Zili
               </span>
             </div>
           </div>
@@ -394,20 +371,6 @@ export default function App() {
               </span>
             </div>
 
-            {/* Google Takvim Butonu */}
-            <button
-              onClick={() => setIsCalendarModalOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl transition ${
-                googleUser
-                  ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
-                  : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs'
-              }`}
-            >
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <span>{googleUser ? 'Google Takvim' : 'Takvim Bağla'}</span>
-              {googleUser && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
-            </button>
-
             {/* Widget Modu Butonu */}
             <button
               onClick={() => setIsWidgetModeOpen(true)}
@@ -415,19 +378,6 @@ export default function App() {
             >
               <Clock className="w-4 h-4" />
               <span>⏱️ Widget Modu</span>
-            </button>
-
-            {/* Sesli Asistan Mikrofon Butonu */}
-            <button
-              onClick={toggleVoiceAssistant}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl transition ${
-                isListening
-                  ? 'bg-rose-600 text-white animate-pulse'
-                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-              }`}
-            >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4 text-emerald-600" />}
-              <span className="hidden sm:inline">{isListening ? 'Dinleniyor...' : 'Sesli Komut'}</span>
             </button>
 
             {/* Zil Sesi Aç/Kapat */}
@@ -463,7 +413,7 @@ export default function App() {
       )}
 
       {/* Ana İçerik */}
-      <main className="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <main className="max-w-7xl mx-auto px-3 py-4 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Sol/Orta Alan: Canlı Widget + Çizelge */}
         <section className="lg:col-span-2 flex flex-col gap-4">
           {/* CANLI GERİ SAYIM SAYACI WİDGET'I */}
@@ -570,109 +520,6 @@ export default function App() {
 
         {/* Sağ Alan: Gemini Asistanı ve Bilgi Paneli */}
         <aside className="flex flex-col gap-4">
-          {/* Gemini Akıllı Asistan Kartı */}
-          <div className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-5 shadow-lg border border-indigo-800/40 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-400/20">
-                  <Sparkles className="w-5 h-5 text-indigo-300" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-sm text-white">Gemini Akıllı Asistan</h2>
-                  <p className="text-[11px] text-indigo-200/70">Sesli veya yazılı program yöneticisi</p>
-                </div>
-              </div>
-
-              {/* Mikrofon Butonu */}
-              <button
-                onClick={toggleVoiceAssistant}
-                className={`p-2.5 rounded-xl transition ${
-                  isListening
-                    ? 'bg-rose-500 text-white animate-bounce ring-4 ring-rose-400/40'
-                    : 'bg-white/10 hover:bg-white/20 text-white'
-                }`}
-                title="Mikrofona basıp Türkçe konuşun"
-              >
-                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5 text-emerald-400" />}
-              </button>
-            </div>
-
-            {/* Ses Dinleme Durumu */}
-            {voiceTranscript && (
-              <div className="p-3 rounded-xl bg-white/10 border border-white/10 text-xs italic text-indigo-200">
-                {voiceTranscript}
-              </div>
-            )}
-
-            {/* Yazılı Komut Formu */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleProcessTextCommand(commandInput);
-              }}
-              className="space-y-2"
-            >
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={commandInput}
-                  onChange={(e) => setCommandInput(e.target.value)}
-                  placeholder="Örn: Salı 3. dersi Matematik yap..."
-                  className="flex-1 px-3 py-2.5 rounded-xl border border-white/20 bg-white/10 text-xs text-white placeholder-indigo-200/50 outline-none focus:ring-2 focus:ring-indigo-400"
-                />
-                <button
-                  type="submit"
-                  disabled={!commandInput.trim() || isProcessing}
-                  className="px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shrink-0"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{isProcessing ? '...' : 'Uygula'}</span>
-                </button>
-              </div>
-            </form>
-
-            {/* Hızlı Örnek Komutlar */}
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300/80 block">
-                Hızlı Komut Örnekleri:
-              </span>
-              <div className="flex flex-col gap-1.5 text-[11px]">
-                <button
-                  type="button"
-                  onClick={() => handleProcessTextCommand('Salı 3. ders Matematik')}
-                  className="text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 text-indigo-100 transition border border-white/5"
-                >
-                  👉 Salı 3. ders Matematik
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleProcessTextCommand('Çarşamba 1. derse ödev kontrolü notunu ekle')}
-                  className="text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 text-indigo-100 transition border border-white/5"
-                >
-                  👉 Çarşamba 1. derse ödev kontrolü notunu ekle
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleProcessTextCommand('Cuma 5. ders İngilizce, sınav var de')}
-                  className="text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 text-indigo-100 transition border border-white/5"
-                >
-                  👉 Cuma 5. ders İngilizce, sınav var de
-                </button>
-              </div>
-            </div>
-
-            {/* Son İşlenen İşlem */}
-            <div className="pt-2 border-t border-white/10">
-              <div className="flex items-center justify-between text-[10px] text-indigo-300 font-bold mb-1">
-                <span>Son Güncelleme:</span>
-                {lastActionTime && <span>{lastActionTime}</span>}
-              </div>
-              <p className="text-xs italic text-white/90 break-words">
-                {lastAction}
-              </p>
-            </div>
-          </div>
-
           <TeacherTools />
 
           {/* Resmi Çizelge Bilgi Kartı */}
@@ -715,32 +562,12 @@ export default function App() {
             if (!soundEnabled) playSchoolBell(true);
           }}
           onPlayBell={() => playSchoolBell(true)}
-          onOpenRemote={() => {
-            setIsWidgetModeOpen(false);
-            toggleVoiceAssistant();
-          }}
+          onOpenRemote={() => showToast("Sesli ve Gemini bağlantısı bu sürümden kaldırıldı.")}
           onOpenFullSchedule={() => setIsWidgetModeOpen(false)}
           onCloseWidgetMode={() => setIsWidgetModeOpen(false)}
         />
       )}
 
-      {/* Google Takvim Modalı */}
-      <CalendarSyncModal
-        isOpen={isCalendarModalOpen}
-        onClose={() => setIsCalendarModalOpen(false)}
-        user={googleUser}
-        accessToken={accessToken}
-        onAuthSuccess={(u, t) => {
-          setGoogleUser(u);
-          setAccessToken(t);
-        }}
-        onLogout={() => {
-          setGoogleUser(null);
-          setAccessToken(null);
-        }}
-        scheduleData={scheduleData}
-        onNotify={showToast}
-      />
     </div>
   );
 }
