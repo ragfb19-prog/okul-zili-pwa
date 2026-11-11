@@ -30,11 +30,13 @@ class MainActivity : Activity() {
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.settings.allowFileAccess = true
+        // Vite builds ES modules; permit local module files to load from the bundled file:// origin.
+        webView.settings.allowFileAccessFromFileURLs = true
+        webView.settings.allowUniversalAccessFromFileURLs = true
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = WebChromeClient()
         webView.addJavascriptInterface(WidgetBridge(), "SchoolBellWidget")
         setContentView(webView)
-        // Uygulama arayüzü APK içine gömülüdür; Render sunucusunun açılmasını beklemez.
         webView.loadUrl("file:///android_asset/www/index.html")
     }
 
