@@ -11,7 +11,7 @@ export function TeacherTools() {
  const [event,setEvent] = useState('');
  const [date,setDate] = useState(new Date().toISOString().slice(0,10));
  const [theme,setTheme] = useState(localStorage.getItem('okul_zili_theme') || 'classroom');
- useEffect(() => { localStorage.setItem('okul_zili_notes',JSON.stringify(notes)); },[notes]);
+ useEffect(() => { localStorage.setItem('okul_zili_notes',JSON.stringify(notes)); try { (window as any).SchoolBellWidget?.updateNotes?.(JSON.stringify(notes)); } catch {} },[notes]);
  useEffect(() => { localStorage.setItem('okul_zili_tasks',JSON.stringify(tasks)); },[tasks]);
  useEffect(() => { localStorage.setItem('okul_zili_events',JSON.stringify(events)); },[events]);
  useEffect(() => { localStorage.setItem('okul_zili_theme',theme); document.documentElement.dataset.schoolTheme = theme; },[theme]);
