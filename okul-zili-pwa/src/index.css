@@ -1,1 +1,38 @@
 @import "tailwindcss";
+
+:root { color-scheme: light; }
+html, body, #root { min-height: 100%; }
+body { margin: 0; background: #f7f5ec; }
+
+.school-background {
+  position: relative;
+  isolation: isolate;
+  background-color: #f8f6ed;
+  background-image:
+    radial-gradient(circle at 8% 12%, rgba(250, 204, 100, .24) 0 5rem, transparent 5.2rem),
+    radial-gradient(circle at 95% 26%, rgba(111, 183, 157, .20) 0 6rem, transparent 6.2rem),
+    radial-gradient(circle at 8% 86%, rgba(133, 166, 224, .16) 0 7rem, transparent 7.2rem),
+    linear-gradient(135deg, #fbf8ef 0%, #f2f7f1 52%, #fbf2e9 100%);
+}
+.school-background::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .22;
+  background-image: radial-gradient(#b79b62 1px, transparent 1.4px), radial-gradient(#83a99a 1px, transparent 1.4px);
+  background-size: 30px 30px, 43px 43px;
+  background-position: 4px 7px, 18px 22px;
+}
+.teacher-tools { background: rgba(255,255,255,.91); backdrop-filter: blur(8px); }
+[data-school-theme="paper"] .school-background {
+  background-color: #fffdf4;
+  background-image: repeating-linear-gradient(transparent 0 31px, rgba(94, 151, 205, .12) 32px 33px), linear-gradient(90deg, transparent 0 34px, rgba(224, 110, 110, .16) 35px 37px, transparent 38px), #fffdf4;
+}
+[data-school-theme="chalkboard"] .school-background {
+  background-color: #e9eee6;
+  background-image: radial-gradient(circle at 80% 12%, rgba(241, 215, 137, .18) 0 5rem, transparent 5.2rem), linear-gradient(135deg, #edf1e8, #e5eee8);
+}
+[data-school-theme="chalkboard"] .teacher-tools { border-color: #b7cdbd; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; } }
