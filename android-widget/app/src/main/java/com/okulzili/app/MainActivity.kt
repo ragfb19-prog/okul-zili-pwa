@@ -29,11 +29,13 @@ class MainActivity : Activity() {
         webView = WebView(this)
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
+        webView.settings.allowFileAccess = true
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = WebChromeClient()
         webView.addJavascriptInterface(WidgetBridge(), "SchoolBellWidget")
         setContentView(webView)
-        webView.loadUrl("https://okul-zili-pwa.onrender.com/")
+        // Uygulama arayüzü APK içine gömülüdür; Render sunucusunun açılmasını beklemez.
+        webView.loadUrl("file:///android_asset/www/index.html")
     }
 
     @Deprecated("Deprecated in Java")
