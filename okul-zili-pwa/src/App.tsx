@@ -341,9 +341,13 @@ export default function App() {
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target?.result as string);
-        if (parsed.Pazartesi && parsed.Salı) {
-          saveSchedule(parsed);
-          showToast('Program dosyadan başarıyla yüklendi!');
+        if ((parsed.scheduleData || parsed).Pazartesi && (parsed.scheduleData || parsed).Salı) {
+          saveSchedule(parsed.scheduleData || parsed);
+          if (Array.isArray(parsed.notes)) localStorage.setItem('okul_zili_notes', JSON.stringify(parsed.notes));
+          if (Array.isArray(parsed.tasks)) localStorage.setItem('okul_zili_tasks', JSON.stringify(parsed.tasks));
+          if (Array.isArray(parsed.events)) localStorage.setItem('okul_zili_events', JSON.stringify(parsed.events));
+          if (parsed.theme) localStorage.setItem('okul_zili_theme', parsed.theme);
+          showToast('Yedek program ve ajanda geri yüklendi!');
         } else {
           alert('Geçersiz dosya formatı.');
         }
