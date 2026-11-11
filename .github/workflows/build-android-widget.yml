@@ -5,10 +5,10 @@ on:
     branches: [main]
     paths:
       - 'android-widget/**'
-      - 'src/**'
-      - 'public/**'
-      - 'package.json'
-      - 'vite.config.ts'
+      - 'okul-zili-pwa/src/**'
+      - 'okul-zili-pwa/public/**'
+      - 'okul-zili-pwa/package.json'
+      - 'okul-zili-pwa/vite.config.ts'
       - '.github/workflows/build-android-widget.yml'
 concurrency:
   group: android-widget-release
@@ -24,13 +24,15 @@ jobs:
         with:
           node-version: 22
       - name: Install web dependencies
+        working-directory: okul-zili-pwa
         run: npm install --legacy-peer-deps
       - name: Build offline web app
+        working-directory: okul-zili-pwa
         run: npm run build -- --base=./
       - name: Bundle web app into Android assets
         run: |
           mkdir -p android-widget/app/src/main/assets/www
-          cp -R dist/. android-widget/app/src/main/assets/www/
+          cp -R okul-zili-pwa/dist/. android-widget/app/src/main/assets/www/
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
