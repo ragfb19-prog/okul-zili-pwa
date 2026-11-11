@@ -18,6 +18,7 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
         const val PREFS = "school_bell_widget"
         const val KEY_SCHEDULE = "schedule_json"
         const val KEY_NOTES = "quick_notes_json"
+        const val KEY_TRANSPARENT = "widget_transparent"
         const val ACTION_REFRESH = "com.okulzili.app.REFRESH_WIDGET"
 
         private val dayNames = mapOf(
@@ -48,6 +49,10 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         views.setOnClickPendingIntent(R.id.widget_root, pending)
+        val transparent = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(KEY_TRANSPARENT, false)
+        views.setInt(R.id.widget_root, "setBackgroundColor",
+            if (transparent) android.graphics.Color.TRANSPARENT else android.graphics.Color.rgb(17, 24, 39))
 
         val cal = Calendar.getInstance()
         val day = dayNames[cal.get(Calendar.DAY_OF_WEEK)]
