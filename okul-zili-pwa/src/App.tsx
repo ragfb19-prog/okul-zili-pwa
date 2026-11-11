@@ -321,16 +321,16 @@ export default function App() {
   };
 
   const handleExportJson = () => {
-    const blob = new Blob([JSON.stringify(scheduleData, null, 2)], {
+    const blob = new Blob([JSON.stringify({ version: 2, scheduleData, notes: JSON.parse(localStorage.getItem('okul_zili_notes') || '[]'), tasks: JSON.parse(localStorage.getItem('okul_zili_tasks') || '[]'), events: JSON.parse(localStorage.getItem('okul_zili_events') || '[]'), theme: localStorage.getItem('okul_zili_theme') || 'classroom' }, null, 2)], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `danisment-ders-programi-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `okul-zili-yedek-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('Ders programı JSON dosyası olarak indirildi.');
+    showToast('Ders programı ve öğretmen ajandası yedeklendi.');
   };
 
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
