@@ -27,6 +27,7 @@ import { LiveCountdownWidget } from './components/LiveCountdownWidget';
 import { ScheduleList } from './components/ScheduleList';
 import { PhoneWidgetMode } from './components/PhoneWidgetMode';
 import { CalendarSyncModal } from './components/CalendarSyncModal';
+import { TeacherTools } from './components/TeacherTools';
 import { initAuth } from './services/firebaseAuth';
 import { User } from 'firebase/auth';
 
@@ -359,7 +360,7 @@ export default function App() {
   const isToday = !todayObj.isWeekend && todayObj.day === currentDay;
 
   return (
-    <div className="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans">
+    <div className="school-background text-slate-800 min-h-screen flex flex-col font-sans">
       {/* Üst Bar */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -667,6 +668,8 @@ export default function App() {
               </p>
             </div>
           </div>
+
+          <TeacherTools />
 
           {/* Resmi Çizelge Bilgi Kartı */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs text-xs space-y-2.5">
