@@ -25,6 +25,18 @@ body { margin: 0; background: #f7f5ec; }
   background-size: 30px 30px, 43px 43px;
   background-position: 4px 7px, 18px 22px;
 }
+.school-background::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--custom-school-bg, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: var(--custom-school-bg-opacity, 0);
+}
 .teacher-tools { background: rgba(255,255,255,.91); backdrop-filter: blur(8px); }
 [data-school-theme="paper"] .school-background {
   background-color: #fffdf4;
