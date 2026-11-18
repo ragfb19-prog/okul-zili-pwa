@@ -7,7 +7,6 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.SystemClock
 import android.view.View
 import android.widget.RemoteViews
 import org.json.JSONArray
@@ -48,12 +47,13 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val raw = prefs.getString(KEY_SCHEDULE, null)
+        val agendaRaw = prefs.getString(KEY_AGENDA, null)
         val views = RemoteViews(context.packageName, R.layout.school_bell_widget)
-        val pending = PendingIntent.getActivity(
+        val openApp = PendingIntent.getActivity(
             context, 0, Intent(context, MainActivity::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        views.setOnClickPendingIntent(R.id.widget_root, pending)
+        views.setOnClickPendingIntent(R.id.widget_root, openApp)
 
         val transparent = prefs.getBoolean(KEY_TRANSPARENT, false)
         views.setInt(
@@ -67,163 +67,159 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.widget_clock, String.format("%02d:%02d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE)))
         views.setTextViewText(R.id.widget_day, day ?: "Hafta sonu")
 
-        val agendaLines = mutableListOf<String>()
-        val agendaRaw = prefs.getString(KEY_AGENDA, null)
         var agenda = JSONObject()
-        try {
-            if (!agendaRaw.isNullOrBlank()) {
-                agenda = JSONObject(agendaRaw)
-                val notes = agenda.optJSONArray("notes") ?: JSONArray()
-                val tasks = agenda.optJSONArray("tasks") ?: JSONArray()
-                val noteLines = (0 until notes.length()).mapNotNull { i ->
-                    notes.optString(i).trim().takeIf { it.isNotBlank() }
-                }
-                if (noteLines.isNotEmpty()) {
-                    agendaLines.add("HIZLI NOTLAR")
-                    noteLines.take(2).forEach { agendaLines.add("• $it") }
-                    if (noteLines.size > 2) agendaLines.add("• +${noteLines.size - 2} not daha")
-                }
-                val openTasks = (0 until tasks.length()).mapNotNull { i ->
-                    tasks.optJSONObject(i)?.takeIf { !it.optBoolean("done", false) }
-                        ?.optString("text")?.trim()?.takeIf { it.isNotBlank() }
-                }
-                if (openTasks.isNotEmpty()) {
-                    agendaLines.add("YAPILACAKLAR")
-                    openTasks.take(2).forEach { agendaLines.add("□ $it") }
-                    if (openTasks.size > 2) agendaLines.add("□ +${openTasks.size - 2} görev daha")
-                }
-            } else {
-                val oldNotes = JSONArray(prefs.getString(KEY_NOTES, "[]") ?: "[]")
-                if (oldNotes.length() > 0) {
-                    agendaLines.add("HIZLI NOTLAR")
-                    for (i in 0 until minOf(2, oldNotes.length())) {
-                        val value = oldNotes.optString(i).trim()
-                        if (value.isNotBlank()) agendaLines.add("• $value")
-                    }
-                }
-            }
-        } catch (_: Exception) {
-            agendaLines.add("Ajanda verisi okunamadı")
-        }
+        try { if (!agendaRaw.isNullOrBlank()) agenda = JSONObject(agendaRaw) } catch (_: Exception) { }
 
+        // Widget'taki not alanı yalnızca bugünün ders notlarını gösterir.
+        val lessonNotes = mutableListOf<String>()
         if (day != null && !raw.isNullOrBlank()) {
             try {
                 val slots = JSONObject(raw).optJSONArray(day) ?: JSONArray()
-                val lessonNotes = mutableListOf<String>()
                 for (i in 0 until slots.length()) {
                     val slot = slots.optJSONObject(i) ?: continue
+                    if (slot.optString("type") != "ders") continue
                     val note = slot.optString("notes").trim()
-                    if (note.isNotBlank()) lessonNotes.add("${slot.optString("start")} ${slot.optString("title")}: $note")
-                }
-                if (lessonNotes.isNotEmpty()) {
-                    agendaLines.add(0, "DERS NOTLARI")
-                    lessonNotes.take(2).forEachIndexed { index, line -> agendaLines.add(index + 1, "• $line") }
-                    if (lessonNotes.size > 2) agendaLines.add(3, "• +${lessonNotes.size - 2} ders notu daha")
+                    if (note.isNotBlank()) {
+                        val title = slot.optString("title").trim()
+                        lessonNotes.add("${slot.optString("start")} ${title}: $note")
+                    }
                 }
             } catch (_: Exception) { }
         }
+        val noteText = if (lessonNotes.isEmpty()) "" else "DERS NOTLARI\n" + lessonNotes.take(2).joinToString("  •  ")
+        views.setTextViewText(R.id.widget_note, noteText)
+        views.setViewVisibility(R.id.widget_note, if (noteText.isBlank()) View.GONE else View.VISIBLE)
 
-        val agendaText = agendaLines.take(6).joinToString("\n")
-        views.setTextViewText(R.id.widget_note, agendaText)
-        views.setViewVisibility(R.id.widget_note, if (agendaText.isBlank()) View.GONE else View.VISIBLE)
-
-        val upcomingEvents = mutableListOf<String>()
+        // Görevler ayrı yeşil alanda gösterilir.
+        val taskLines = mutableListOf<String>()
         try {
-            val eventArray = agenda.optJSONArray("events") ?: JSONArray()
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
-            val today = dateFormat.parse(dateFormat.format(cal.time))
-            for (i in 0 until eventArray.length()) {
-                val item = eventArray.optJSONObject(i) ?: continue
-                val eventDate = item.optString("date")
-                val parsedDate = runCatching { dateFormat.parse(eventDate) }.getOrNull() ?: continue
-                if (today != null) {
-                    val days = ((parsedDate.time - today.time) / 86_400_000L).toInt()
-                    val title = item.optString("text").trim()
-                    if (days in 0..7 && title.isNotBlank()) {
-                        upcomingEvents.add("${dateFormat.format(parsedDate)} • $title • ${if (days == 0) "BUGÜN" else "$days gün"}")
-                    }
-                }
+            val tasks = agenda.optJSONArray("tasks") ?: JSONArray()
+            for (i in 0 until tasks.length()) {
+                val item = tasks.optJSONObject(i) ?: continue
+                val text = item.optString("text").trim()
+                if (!item.optBoolean("done", false) && text.isNotBlank()) taskLines.add("□ $text")
             }
         } catch (_: Exception) { }
+        val taskText = if (taskLines.isEmpty()) "" else "GÖREVLER\n" + taskLines.take(2).joinToString("  •  ")
+        views.setTextViewText(R.id.widget_tasks, taskText)
+        views.setViewVisibility(R.id.widget_tasks, if (taskText.isBlank()) View.GONE else View.VISIBLE)
 
-        val officialEvent = SchoolCalendarData.nextEvent(cal)
-        val officialDays = if (officialEvent.third == "BUGÜN") 0 else officialEvent.third.substringBefore(" ").toIntOrNull() ?: Int.MAX_VALUE
-        if (officialDays in 0..7) {
-            upcomingEvents.add("${officialEvent.second} • ${officialEvent.first} • ${officialEvent.third}")
+        // Hatırlatıcılar yalnızca içinde bulunulan haftada, geri sayım olmadan görünür.
+        val daysToSunday = (Calendar.SUNDAY - cal.get(Calendar.DAY_OF_WEEK) + 7) % 7
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
+        val shortDate = SimpleDateFormat("dd.MM", Locale.ROOT)
+        val todayStart = (cal.clone() as Calendar).apply {
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
-        val eventText = upcomingEvents.take(2).joinToString("\n") { "TAKVİM  •  $it" }
-        views.setViewVisibility(R.id.widget_quick_note, if (eventText.isBlank()) View.GONE else View.VISIBLE)
-        views.setTextViewText(R.id.widget_quick_note, eventText)
-        views.setViewVisibility(R.id.widget_countdown, View.GONE)
+        val reminderLines = mutableListOf<String>()
+        val eventLines = mutableListOf<String>()
+        fun addDatedItems(array: JSONArray?, target: MutableList<String>, prefix: String) {
+            if (array == null) return
+            for (i in 0 until array.length()) {
+                val item = array.optJSONObject(i) ?: continue
+                val title = item.optString("text").trim()
+                val dateValue = item.optString("date")
+                if (title.isBlank()) continue
+                val parsed = runCatching { dateFormat.parse(dateValue) }.getOrNull() ?: continue
+                val eventCal = Calendar.getInstance().apply {
+                    time = parsed
+                    set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+                }
+                val days = ((eventCal.timeInMillis - todayStart.timeInMillis) / 86_400_000L).toInt()
+                if (days in 0..daysToSunday) {
+                    val whenText = if (days == 0) "BUGÜN" else shortDate.format(parsed)
+                    target.add("$prefix $whenText • $title")
+                }
+            }
+        }
+        addDatedItems(agenda.optJSONArray("reminders"), reminderLines, "•")
+        val reminderText = if (reminderLines.isEmpty()) "" else "HATIRLATICILAR\n" + reminderLines.take(2).joinToString("  •  ")
+        views.setTextViewText(R.id.widget_reminders, reminderText)
+        views.setViewVisibility(R.id.widget_reminders, if (reminderText.isBlank()) View.GONE else View.VISIBLE)
 
+        addDatedItems(agenda.optJSONArray("events"), eventLines, "•")
+        val official = SchoolCalendarData.nextEvent(cal)
+        val officialDays = if (official.third == "BUGÜN") 0 else official.third.substringBefore(" ").toIntOrNull() ?: Int.MAX_VALUE
+        if (officialDays in 0..daysToSunday) {
+            eventLines.add("• ${if (officialDays == 0) "BUGÜN" else official.second} • ${official.first}")
+        }
+        val eventText = if (eventLines.isEmpty()) "" else "TAKVİM\n" + eventLines.take(2).joinToString("  •  ")
+        views.setTextViewText(R.id.widget_quick_note, eventText)
+        views.setViewVisibility(R.id.widget_quick_note, if (eventText.isBlank()) View.GONE else View.VISIBLE)
+
+        // Geri sayım yok. Öğle arası/teneffüs adı yerine yalnızca aktif veya sıradaki ders yazılır.
         if (day == null) {
             views.setTextViewText(R.id.widget_status, "HAFTA SONU")
             views.setTextViewText(R.id.widget_lesson, "Ders yok")
-            views.setTextViewText(R.id.widget_next, "Pazartesi programı için dokun")
+            views.setTextViewText(R.id.widget_next, "Yeni hafta")
         } else if (raw.isNullOrBlank()) {
-            views.setTextViewText(R.id.widget_status, "CANLI DERS PROGRAMI")
-            views.setTextViewText(R.id.widget_lesson, "Programı yükle")
-            views.setTextViewText(R.id.widget_next, "Uygulamayı aç; widget eşitlenir.")
+            views.setTextViewText(R.id.widget_status, "DERS PROGRAMI")
+            views.setTextViewText(R.id.widget_lesson, "Programı eşitle")
+            views.setTextViewText(R.id.widget_next, "Uygulamayı aç")
         } else {
             try {
                 val slots = JSONObject(raw).optJSONArray(day) ?: JSONArray()
-                var current: JSONObject? = null
-                var next: JSONObject? = null
+                var activeLesson: JSONObject? = null
+                var nextLesson: JSONObject? = null
+                var nextTransition: Int? = null
+                var lastLessonEnd = 0
                 for (i in 0 until slots.length()) {
                     val item = slots.optJSONObject(i) ?: continue
+                    if (item.optString("type") != "ders") continue
                     val start = toMinutes(item.optString("start"))
                     val end = toMinutes(item.optString("end"))
-                    if (start >= 0 && end > start && now >= start && now < end) {
-                        current = item
-                        next = slots.optJSONObject(i + 1)
+                    if (start < 0 || end <= start) continue
+                    lastLessonEnd = maxOf(lastLessonEnd, end)
+                    if (now >= start && now < end) {
+                        activeLesson = item
+                        nextTransition = end
+                        nextLesson = (i + 1 until slots.length()).asSequence()
+                            .mapNotNull { slots.optJSONObject(it) }
+                            .firstOrNull { it.optString("type") == "ders" }
                         break
                     }
-                    if (start > now && next == null) next = item
+                    if (start > now && nextLesson == null) {
+                        nextLesson = item
+                        nextTransition = start
+                    }
                 }
 
-                val transitionMinute = if (current != null) toMinutes(current.optString("end")) else next?.let { toMinutes(it.optString("start")) }
                 val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                val refreshIntent = Intent(ACTION_REFRESH).setPackage(context.packageName)
                 val refreshPending = PendingIntent.getBroadcast(
-                    context, 101, refreshIntent,
+                    context, 101, Intent(ACTION_REFRESH).setPackage(context.packageName),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                if (transitionMinute != null && transitionMinute > now) {
-                    val delay = (transitionMinute - now) * 60_000L - cal.get(Calendar.SECOND) * 1000L
+                if (nextTransition != null && nextTransition > now) {
+                    val delay = (nextTransition - now) * 60_000L - cal.get(Calendar.SECOND) * 1000L
                     alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay, refreshPending)
-                } else {
-                    alarmManager.cancel(refreshPending)
-                }
+                } else alarmManager.cancel(refreshPending)
 
                 when {
-                    current != null -> {
+                    activeLesson != null -> {
                         views.setTextViewText(R.id.widget_status, "ŞU AN")
-                        val remainingMs = ((toMinutes(current.optString("end")) - now) * 60_000L - cal.get(Calendar.SECOND) * 1000L).coerceAtLeast(0L)
-                        views.setViewVisibility(R.id.widget_countdown, View.VISIBLE)
-                        views.setChronometer(R.id.widget_countdown, SystemClock.elapsedRealtime() + remainingMs, null, true)
-                        views.setTextViewText(R.id.widget_lesson, current.optString("title", "Ders"))
-                        val nextTitle = next?.optString("title")?.takeIf { it.isNotBlank() }
-                        val nextText = if (nextTitle != null) " • Sırada: $nextTitle" else ""
-                        views.setTextViewText(R.id.widget_next, "Bitiş ${current.optString("end")}$nextText")
+                        views.setTextViewText(R.id.widget_lesson, activeLesson.optString("title", "Ders"))
+                        views.setTextViewText(R.id.widget_next, nextLesson?.let { "Sıradaki: ${it.optString("title")} • ${it.optString("start")}" } ?: "Ders devam ediyor")
                     }
-                    next != null -> {
+                    nextLesson != null -> {
                         views.setTextViewText(R.id.widget_status, "SIRADAKİ DERS")
-                        val untilStartMs = ((toMinutes(next.optString("start")) - now) * 60_000L - cal.get(Calendar.SECOND) * 1000L).coerceAtLeast(0L)
-                        views.setViewVisibility(R.id.widget_countdown, View.VISIBLE)
-                        views.setChronometer(R.id.widget_countdown, SystemClock.elapsedRealtime() + untilStartMs, null, true)
-                        views.setTextViewText(R.id.widget_lesson, next.optString("title", "Ders"))
-                        views.setTextViewText(R.id.widget_next, "Başlangıç ${next.optString("start")}")
+                        views.setTextViewText(R.id.widget_lesson, nextLesson.optString("title", "Ders"))
+                        views.setTextViewText(R.id.widget_next, "Başlangıç: ${nextLesson.optString("start")}")
                     }
-                    else -> {
+                    now >= lastLessonEnd -> {
                         views.setTextViewText(R.id.widget_status, "GÜN TAMAMLANDI")
                         views.setTextViewText(R.id.widget_lesson, "Dersler bitti")
-                        views.setTextViewText(R.id.widget_next, "Yarın görüşürüz.")
+                        views.setTextViewText(R.id.widget_next, "İyi dinlenmeler")
+                    }
+                    else -> {
+                        views.setTextViewText(R.id.widget_status, "DERS PROGRAMI")
+                        views.setTextViewText(R.id.widget_lesson, "Ders arası")
+                        views.setTextViewText(R.id.widget_next, "Sonraki ders bekleniyor")
                     }
                 }
             } catch (_: Exception) {
-                views.setTextViewText(R.id.widget_status, "PROGRAM")
+                views.setTextViewText(R.id.widget_status, "DERS PROGRAMI")
                 views.setTextViewText(R.id.widget_lesson, "Veri okunamadı")
-                views.setTextViewText(R.id.widget_next, "Uygulamayı açıp tekrar eşitle.")
+                views.setTextViewText(R.id.widget_next, "Uygulamayı açıp eşitle")
             }
         }
 
