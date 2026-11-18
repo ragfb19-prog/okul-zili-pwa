@@ -81,7 +81,7 @@ export const ScheduleList: React.FC<Props> = ({
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-slate-800 text-sm sm:text-base">
-                        {item.title}
+                        {isLunch ? 'Ara' : item.title}
                       </h3>
                       {isActive && (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-600 text-white animate-pulse">
