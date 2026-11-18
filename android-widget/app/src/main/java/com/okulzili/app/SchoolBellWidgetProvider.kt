@@ -12,13 +12,16 @@ import android.view.View
 import android.widget.RemoteViews
 import org.json.JSONArray
 import org.json.JSONObject
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 class SchoolBellWidgetProvider : AppWidgetProvider() {
     companion object {
         const val PREFS = "school_bell_widget"
         const val KEY_SCHEDULE = "schedule_json"
         const val KEY_NOTES = "quick_notes_json"
+        const val KEY_AGENDA = "agenda_json"
         const val KEY_TRANSPARENT = "widget_transparent"
         const val ACTION_REFRESH = "com.okulzili.app.REFRESH_WIDGET"
 
@@ -64,21 +67,93 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.widget_clock, String.format("%02d:%02d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE)))
         views.setTextViewText(R.id.widget_day, day ?: "Hafta sonu")
 
-        // Sabit yemek/hatırlatma metinleri ve hızlı not önizlemesi kaldırıldı.
-        // Takvim yalnızca bugün veya içinde bulunduğumuz 7 günlük aralıkta görünür.
-        views.setViewVisibility(R.id.widget_quick_note, View.GONE)
-        val event = SchoolCalendarData.nextEvent(cal)
-        val daysUntil = if (event.third == "BUGÜN") 0 else event.third.substringBefore(" ").toIntOrNull() ?: Int.MAX_VALUE
-        val showEvent = daysUntil in 0..7
-        views.setViewVisibility(R.id.widget_note, if (showEvent) View.VISIBLE else View.GONE)
-        if (showEvent) {
-            views.setTextViewText(
-                R.id.widget_note,
-                "TAKVİM  •  ${event.first}  •  ${event.second}  •  ${event.third}"
-            )
-        } else {
-            views.setTextViewText(R.id.widget_note, "")
+        val agendaLines = mutableListOf<String>()
+        val agendaRaw = prefs.getString(KEY_AGENDA, null)
+        var agenda = JSONObject()
+        try {
+            if (!agendaRaw.isNullOrBlank()) {
+                agenda = JSONObject(agendaRaw)
+                val notes = agenda.optJSONArray("notes") ?: JSONArray()
+                val tasks = agenda.optJSONArray("tasks") ?: JSONArray()
+                val noteLines = (0 until notes.length()).mapNotNull { i ->
+                    notes.optString(i).trim().takeIf { it.isNotBlank() }
+                }
+                if (noteLines.isNotEmpty()) {
+                    agendaLines.add("HIZLI NOTLAR")
+                    noteLines.take(2).forEach { agendaLines.add("• $it") }
+                    if (noteLines.size > 2) agendaLines.add("• +${noteLines.size - 2} not daha")
+                }
+                val openTasks = (0 until tasks.length()).mapNotNull { i ->
+                    tasks.optJSONObject(i)?.takeIf { !it.optBoolean("done", false) }
+                        ?.optString("text")?.trim()?.takeIf { it.isNotBlank() }
+                }
+                if (openTasks.isNotEmpty()) {
+                    agendaLines.add("YAPILACAKLAR")
+                    openTasks.take(2).forEach { agendaLines.add("□ $it") }
+                    if (openTasks.size > 2) agendaLines.add("□ +${openTasks.size - 2} görev daha")
+                }
+            } else {
+                val oldNotes = JSONArray(prefs.getString(KEY_NOTES, "[]") ?: "[]")
+                if (oldNotes.length() > 0) {
+                    agendaLines.add("HIZLI NOTLAR")
+                    for (i in 0 until minOf(2, oldNotes.length())) {
+                        val value = oldNotes.optString(i).trim()
+                        if (value.isNotBlank()) agendaLines.add("• $value")
+                    }
+                }
+            }
+        } catch (_: Exception) {
+            agendaLines.add("Ajanda verisi okunamadı")
         }
+
+        if (day != null && !raw.isNullOrBlank()) {
+            try {
+                val slots = JSONObject(raw).optJSONArray(day) ?: JSONArray()
+                val lessonNotes = mutableListOf<String>()
+                for (i in 0 until slots.length()) {
+                    val slot = slots.optJSONObject(i) ?: continue
+                    val note = slot.optString("notes").trim()
+                    if (note.isNotBlank()) lessonNotes.add("${slot.optString("start")} ${slot.optString("title")}: $note")
+                }
+                if (lessonNotes.isNotEmpty()) {
+                    agendaLines.add(0, "DERS NOTLARI")
+                    lessonNotes.take(2).forEachIndexed { index, line -> agendaLines.add(index + 1, "• $line") }
+                    if (lessonNotes.size > 2) agendaLines.add(3, "• +${lessonNotes.size - 2} ders notu daha")
+                }
+            } catch (_: Exception) { }
+        }
+
+        val agendaText = agendaLines.take(6).joinToString("\n")
+        views.setTextViewText(R.id.widget_note, agendaText)
+        views.setViewVisibility(R.id.widget_note, if (agendaText.isBlank()) View.GONE else View.VISIBLE)
+
+        val upcomingEvents = mutableListOf<String>()
+        try {
+            val eventArray = agenda.optJSONArray("events") ?: JSONArray()
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
+            val today = dateFormat.parse(dateFormat.format(cal.time))
+            for (i in 0 until eventArray.length()) {
+                val item = eventArray.optJSONObject(i) ?: continue
+                val eventDate = item.optString("date")
+                val parsedDate = runCatching { dateFormat.parse(eventDate) }.getOrNull() ?: continue
+                if (today != null) {
+                    val days = ((parsedDate.time - today.time) / 86_400_000L).toInt()
+                    val title = item.optString("text").trim()
+                    if (days in 0..7 && title.isNotBlank()) {
+                        upcomingEvents.add("${dateFormat.format(parsedDate)} • $title • ${if (days == 0) "BUGÜN" else "$days gün"}")
+                    }
+                }
+            }
+        } catch (_: Exception) { }
+
+        val officialEvent = SchoolCalendarData.nextEvent(cal)
+        val officialDays = if (officialEvent.third == "BUGÜN") 0 else officialEvent.third.substringBefore(" ").toIntOrNull() ?: Int.MAX_VALUE
+        if (officialDays in 0..7) {
+            upcomingEvents.add("${officialEvent.second} • ${officialEvent.first} • ${officialEvent.third}")
+        }
+        val eventText = upcomingEvents.take(2).joinToString("\n") { "TAKVİM  •  $it" }
+        views.setViewVisibility(R.id.widget_quick_note, if (eventText.isBlank()) View.GONE else View.VISIBLE)
+        views.setTextViewText(R.id.widget_quick_note, eventText)
         views.setViewVisibility(R.id.widget_countdown, View.GONE)
 
         if (day == null) {

@@ -15,9 +15,14 @@ export function TeacherTools() {
  const [opacity,setOpacity] = useState(Number(localStorage.getItem('okul_zili_bg_opacity') || 35));
  const [transparentWidget,setTransparentWidget] = useState(localStorage.getItem('okul_zili_widget_transparent') === 'true');
  const imageRef = useRef<HTMLInputElement>(null);
- useEffect(() => { localStorage.setItem('okul_zili_notes',JSON.stringify(notes)); try { (window as any).SchoolBellWidget?.updateNotes?.(JSON.stringify(notes)); } catch {} },[notes]);
+ useEffect(() => { localStorage.setItem('okul_zili_notes',JSON.stringify(notes)); },[notes]);
  useEffect(() => { localStorage.setItem('okul_zili_tasks',JSON.stringify(tasks)); },[tasks]);
  useEffect(() => { localStorage.setItem('okul_zili_events',JSON.stringify(events)); },[events]);
+ useEffect(() => {
+   try {
+     (window as any).SchoolBellWidget?.updateAgenda?.(JSON.stringify({ notes, tasks, events }));
+   } catch {}
+ },[notes,tasks,events]);
  useEffect(() => { localStorage.setItem('okul_zili_theme',theme); document.documentElement.dataset.schoolTheme = theme; },[theme]);
  useEffect(() => {
    localStorage.setItem('okul_zili_custom_bg',background);

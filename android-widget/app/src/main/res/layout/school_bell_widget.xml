@@ -34,9 +34,12 @@
         android:textSize="11sp" android:maxLines="1" />
     <TextView android:id="@+id/widget_note" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:layout_marginTop="7dp"
-        android:text="Takvim" android:textColor="#FDE68A"
-        android:textSize="10sp" android:maxLines="2" android:ellipsize="end" />
+        android:text="Ders notları ve görevler" android:textColor="#FDE68A"
+        android:textSize="10sp" android:maxLines="6" android:ellipsize="end" />
     <TextView android:id="@+id/widget_quick_note" android:layout_width="match_parent"
-        android:layout_height="0dp" android:visibility="gone"
-        android:text="" />
+        android:layout_height="wrap_content" android:layout_marginTop="5dp"
+        android:padding="6dp" android:background="#263449"
+        android:text="Yaklaşan takvim etkinliği" android:textColor="#A7F3D0"
+        android:textSize="10sp" android:maxLines="2" android:ellipsize="end"
+        android:visibility="gone" />
 </LinearLayout>

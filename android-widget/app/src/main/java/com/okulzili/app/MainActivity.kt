@@ -21,6 +21,13 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
+        fun updateAgenda(json: String) {
+            getSharedPreferences(SchoolBellWidgetProvider.PREFS, Context.MODE_PRIVATE)
+                .edit().putString(SchoolBellWidgetProvider.KEY_AGENDA, json).apply()
+            sendBroadcast(Intent(SchoolBellWidgetProvider.ACTION_REFRESH).setPackage(packageName))
+        }
+
+        @JavascriptInterface
         fun setWidgetTransparency(enabled: Boolean) {
             getSharedPreferences(SchoolBellWidgetProvider.PREFS, Context.MODE_PRIVATE)
                 .edit().putBoolean(SchoolBellWidgetProvider.KEY_TRANSPARENT, enabled).apply()
@@ -44,7 +51,6 @@ class MainActivity : Activity() {
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.settings.allowFileAccess = true
-        // Vite builds ES modules; permit local module files to load from the bundled file:// origin.
         webView.settings.allowFileAccessFromFileURLs = true
         webView.settings.allowUniversalAccessFromFileURLs = true
         webView.webViewClient = WebViewClient()
