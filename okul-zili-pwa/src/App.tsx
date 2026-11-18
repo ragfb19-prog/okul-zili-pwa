@@ -27,6 +27,9 @@ import { LiveCountdownWidget } from './components/LiveCountdownWidget';
 import { ScheduleList } from './components/ScheduleList';
 import { PhoneWidgetMode } from './components/PhoneWidgetMode';
 import { TeacherTools } from './components/TeacherTools';
+import { CalendarSyncModal } from './components/CalendarSyncModal';
+import { initAuth } from './services/firebaseAuth';
+import type { User } from 'firebase/auth';
 
 export default function App() {
   const [scheduleData, setScheduleData] = useState<WeekSchedule>(() => {
@@ -46,6 +49,10 @@ export default function App() {
   const [isOnline, setIsOnline] = useState<boolean>(() => typeof navigator === 'undefined' ? true : navigator.onLine);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isWidgetModeOpen, setIsWidgetModeOpen] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<'program' | 'agenda'>('program');
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+  const [calendarUser, setCalendarUser] = useState<User | null>(null);
+  const [calendarAccessToken, setCalendarAccessToken] = useState<string | null>(null);
 
   // Gemini Sesli & Yazılı Asistan State
   const [isListening, setIsListening] = useState<boolean>(false);
@@ -72,7 +79,16 @@ export default function App() {
     };
   }, []);
 
-  // Otomatik Geri Sayım ve Saat Güncellemesi
+  // Google Takvim oturumunu izle. Erişim belirteci güvenlik için yalnızca bellekte tutulur.
+  useEffect(() => {
+    const unsubscribe = initAuth(
+      (user, token) => { setCalendarUser(user); setCalendarAccessToken(token); },
+      () => { setCalendarUser(null); setCalendarAccessToken(null); }
+    );
+    return () => unsubscribe();
+  }, []);
+
+  // Otomatik saat güncellemesi
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(new Date());
@@ -371,6 +387,14 @@ export default function App() {
               </span>
             </div>
 
+            <button
+              onClick={() => setActiveView(activeView === 'agenda' ? 'program' : 'agenda')}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>{activeView === 'agenda' ? 'Programa dön' : 'Ajanda'}</span>
+            </button>
+
             {/* Widget Modu Butonu */}
             <button
               onClick={() => setIsWidgetModeOpen(true)}
@@ -414,6 +438,10 @@ export default function App() {
 
       {/* Ana İçerik */}
       <main className="max-w-7xl mx-auto px-3 py-4 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {activeView === 'agenda' ? (
+          <div className="lg:col-span-3 max-w-4xl w-full mx-auto"><TeacherTools /></div>
+        ) : (
+        <>
         {/* Sol/Orta Alan: Canlı Widget + Çizelge */}
         <section className="lg:col-span-2 flex flex-col gap-4">
           {/* CANLI GERİ SAYIM SAYACI WİDGET'I */}
@@ -505,7 +533,7 @@ export default function App() {
             </div>
 
             <span className="text-slate-600 font-semibold text-xs">
-              {currentDay} Programı (7 Ders + Öğle Arası)
+              {currentDay} Programı (7 Ders)
             </span>
           </div>
 
@@ -520,7 +548,10 @@ export default function App() {
 
         {/* Sağ Alan: Gemini Asistanı ve Bilgi Paneli */}
         <aside className="flex flex-col gap-4">
-          <TeacherTools />
+          <button onClick={() => setActiveView('agenda')} className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-left text-indigo-900 hover:bg-indigo-100 transition">
+            <span className="flex items-center gap-2 font-bold"><Calendar className="w-5 h-5"/> Ajandayı aç</span>
+            <span className="block mt-1 text-xs text-indigo-700">Ders notları, görevler ve tarihli hatırlatmalar</span>
+          </button>
 
           {/* Resmi Çizelge Bilgi Kartı */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs text-xs space-y-2.5">
@@ -538,7 +569,7 @@ export default function App() {
                 <strong className="font-semibold text-slate-800">10-15 Dakika</strong>
               </li>
               <li className="flex justify-between py-1 border-b border-slate-100">
-                <span>Öğle Arası (12:05 - 12:55):</span>
+                <span>Ara (12:05 - 12:55):</span>
                 <strong className="font-semibold text-amber-700">50 Dakika</strong>
               </li>
               <li className="flex justify-between py-1">
@@ -548,7 +579,20 @@ export default function App() {
             </ul>
           </div>
         </aside>
+        </>
+        )}
       </main>
+
+      <CalendarSyncModal
+        isOpen={isCalendarModalOpen}
+        onClose={() => setIsCalendarModalOpen(false)}
+        user={calendarUser}
+        accessToken={calendarAccessToken}
+        onAuthSuccess={(user, token) => { setCalendarUser(user); setCalendarAccessToken(token); }}
+        onLogout={() => { setCalendarUser(null); setCalendarAccessToken(null); }}
+        scheduleData={scheduleData}
+        onNotify={showToast}
+      />
 
       {/* Telefon / Masa Saati Canlı Widget Modu */}
       {isWidgetModeOpen && (
