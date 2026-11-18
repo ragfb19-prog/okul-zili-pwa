@@ -441,7 +441,14 @@ export default function App() {
       {/* Ana İçerik */}
       <main className="max-w-7xl mx-auto px-3 py-4 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
         {activeView === 'agenda' ? (
-          <div className="lg:col-span-3 max-w-4xl w-full mx-auto"><TeacherTools /></div>
+          <div className="lg:col-span-3 max-w-4xl w-full mx-auto space-y-3">
+            <div className="flex justify-end">
+              <button onClick={() => setIsCalendarModalOpen(true)} className="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-800 hover:bg-blue-100">
+                <Calendar className="w-4 h-4" /> Google Takvim
+              </button>
+            </div>
+            <TeacherTools />
+          </div>
         ) : (
         <>
         {/* Sol/Orta Alan: Canlı Widget + Çizelge */}
