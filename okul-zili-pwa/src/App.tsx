@@ -132,6 +132,23 @@ export default function App() {
     }
   }, [scheduleData]);
 
+  // Ajanda verilerini de uygulama ilk açılır açılmaz native widget'a aktar.
+  useEffect(() => {
+    try {
+      const read = (key: string) => {
+        try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; }
+      };
+      (window as any).SchoolBellWidget?.updateAgenda?.(JSON.stringify({
+        notes: read('okul_zili_notes'),
+        tasks: read('okul_zili_tasks'),
+        events: read('okul_zili_events'),
+        reminders: read('okul_zili_reminders')
+      }));
+    } catch (e) {
+      console.warn('Ajanda widget verisi gönderilemedi:', e);
+    }
+  }, []);
+
   // Komutu çizelgeye uygula
   const applyCommand = useCallback(
     (action: RemoteAction) => {
