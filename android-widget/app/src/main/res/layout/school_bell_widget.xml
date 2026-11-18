@@ -34,10 +34,9 @@
         android:textSize="11sp" android:maxLines="1" />
     <TextView android:id="@+id/widget_note" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:layout_marginTop="7dp"
-        android:text="Ders notları burada görünür." android:textColor="#FDE68A"
-        android:textSize="10sp" android:maxLines="3" android:ellipsize="end" />
-    <TextView android:id="@+id/widget_quick_note" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:layout_marginTop="5dp"
-        android:text="Hızlı notlar" android:textColor="#A7F3D0"
+        android:text="Takvim" android:textColor="#FDE68A"
         android:textSize="10sp" android:maxLines="2" android:ellipsize="end" />
+    <TextView android:id="@+id/widget_quick_note" android:layout_width="match_parent"
+        android:layout_height="0dp" android:visibility="gone"
+        android:text="" />
 </LinearLayout>

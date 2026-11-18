@@ -11,15 +11,15 @@
         android:id="@+id/combined_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tarih"
+        android:text="Tarih • Saat"
         android:textColor="#94A3B8"
-        android:textSize="10sp" />
+        android:textSize="11sp" />
 
     <TextView
         android:id="@+id/combined_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="7dp"
         android:text="ZİL DURUMU"
         android:textColor="#A5B4FC"
         android:textSize="10sp"
@@ -29,61 +29,26 @@
         android:id="@+id/combined_lesson"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="3dp"
         android:maxLines="2"
         android:ellipsize="end"
         android:text="Ders"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/combined_event"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:maxLines="1"
+        android:layout_marginTop="9dp"
+        android:padding="8dp"
+        android:background="#263449"
+        android:maxLines="2"
         android:ellipsize="end"
         android:text="Takvim etkinliği"
-        android:textColor="#FBBF24"
-        android:textSize="11sp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:background="#334155"
-        android:text="" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="HAFTANIN ATASÖZÜ"
-        android:textColor="#6EE7B7"
-        android:textSize="9sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/combined_proverb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:maxLines="2"
-        android:ellipsize="end"
-        android:text="Atasözü"
-        android:textColor="#FFFFFF"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/combined_meaning"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:maxLines="2"
-        android:ellipsize="end"
-        android:text="Anlamı"
-        android:textColor="#CBD5E1"
-        android:textSize="10sp" />
+        android:textColor="#FDE68A"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 </LinearLayout>

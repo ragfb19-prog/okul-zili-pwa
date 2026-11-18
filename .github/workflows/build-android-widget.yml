@@ -56,8 +56,8 @@ jobs:
       - name: Publish offline APK release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: okul-zili-widget-v1.3.0
-          name: Okul Zili Android Offline v1.3.0
-          body: Teacher notes, daily tasks, agenda, themes, improved resizable home widget, and offline schedule backup. App UI is bundled in APK; Gemini and Google Calendar require internet.
+          tag_name: okul-zili-widget-v1.4.0
+          name: Okul Zili Android Offline v1.4.0
+          body: Cleaner combined school widget, calendar events shown only on the event day or during the preceding week, removed fixed lunch/quick-note text, and transparent background support for both bell and combined widgets.
           files: android-widget/app/build/outputs/apk/debug/app-debug.apk
           make_latest: true

@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.view.View
 import android.widget.RemoteViews
 import org.json.JSONObject
 import java.util.Calendar
@@ -25,10 +26,17 @@ class SchoolCombinedWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.school_combined_widget)
         try {
             val now = Calendar.getInstance()
-            val proverb = SchoolCalendarData.weeklyProverb(now)
-            views.setTextViewText(R.id.combined_date, SchoolCalendarData.dateLabel(now))
-            views.setTextViewText(R.id.combined_proverb, proverb.first)
-            views.setTextViewText(R.id.combined_meaning, proverb.second)
+            val prefs = context.getSharedPreferences(SchoolBellWidgetProvider.PREFS, Context.MODE_PRIVATE)
+            val transparent = prefs.getBoolean(SchoolBellWidgetProvider.KEY_TRANSPARENT, false)
+            views.setInt(
+                R.id.combined_root, "setBackgroundColor",
+                if (transparent) android.graphics.Color.TRANSPARENT else android.graphics.Color.rgb(16, 24, 39)
+            )
+            views.setTextViewText(
+                R.id.combined_date,
+                SchoolCalendarData.dateLabel(now) + "  •  " +
+                    String.format("%02d:%02d", now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE))
+            )
 
             val day = when (now.get(Calendar.DAY_OF_WEEK)) {
                 Calendar.MONDAY -> "Pazartesi"
@@ -40,7 +48,6 @@ class SchoolCombinedWidgetProvider : AppWidgetProvider() {
             }
             var status = "ZİL • PROGRAM"
             var lesson = "Programı uygulamada eşitle"
-            val prefs = context.getSharedPreferences(SchoolBellWidgetProvider.PREFS, Context.MODE_PRIVATE)
             val raw = prefs.getString(SchoolBellWidgetProvider.KEY_SCHEDULE, null)
 
             if (day != null && !raw.isNullOrBlank()) {
@@ -86,10 +93,17 @@ class SchoolCombinedWidgetProvider : AppWidgetProvider() {
                 lesson = "Ders yok"
             }
 
-            val event = SchoolCalendarData.nextEvent(now)
             views.setTextViewText(R.id.combined_status, status)
             views.setTextViewText(R.id.combined_lesson, lesson)
-            views.setTextViewText(R.id.combined_event, event.first + " • " + event.third)
+
+            val event = SchoolCalendarData.nextEvent(now)
+            val daysUntil = if (event.third == "BUGÜN") 0 else event.third.substringBefore(" ").toIntOrNull() ?: Int.MAX_VALUE
+            val showEvent = daysUntil in 0..7
+            views.setViewVisibility(R.id.combined_event, if (showEvent) View.VISIBLE else View.GONE)
+            views.setTextViewText(
+                R.id.combined_event,
+                if (showEvent) "TAKVİM  •  ${event.first}  •  ${event.second}  •  ${event.third}" else ""
+            )
 
             val openApp = PendingIntent.getActivity(
                 context, 303, Intent(context, MainActivity::class.java),
@@ -97,13 +111,11 @@ class SchoolCombinedWidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.combined_root, openApp)
         } catch (_: Exception) {
-            // Keep the widget addable even if a data source fails at runtime.
             views.setTextViewText(R.id.combined_date, "OKUL ZİLİ")
             views.setTextViewText(R.id.combined_status, "BİRLEŞTİRİLMİŞ WIDGET")
             views.setTextViewText(R.id.combined_lesson, "Veriler yüklenemedi")
-            views.setTextViewText(R.id.combined_event, "Uygulamayı açıp tekrar deneyin")
-            views.setTextViewText(R.id.combined_proverb, "Haftanın atasözü")
-            views.setTextViewText(R.id.combined_meaning, "Atasözü bilgisi şu an alınamadı.")
+            views.setTextViewText(R.id.combined_event, "")
+            views.setViewVisibility(R.id.combined_event, View.GONE)
             val openApp = PendingIntent.getActivity(
                 context, 303, Intent(context, MainActivity::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
