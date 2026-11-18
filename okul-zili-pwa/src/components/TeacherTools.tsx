@@ -117,6 +117,7 @@ export function TeacherTools() {
 
   <section className='rounded-2xl border border-sky-200 bg-sky-50/70 p-3 space-y-2'>
    <h3 className='font-semibold text-sm text-sky-900 flex gap-2 items-center'><CalendarClock size={17}/> Takvim etkinlikleri</h3>
+   <input type='date' value={date} onChange={e=>setDate(e.target.value)} className='w-full rounded-xl border border-sky-200 bg-white px-2 py-2 text-xs'/>
    <div className='flex gap-2'><input value={event} onChange={e=>setEvent(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addEvent()} placeholder='Sınav, toplantı, nöbet...' className='min-w-0 flex-1 rounded-xl border border-sky-200 bg-white px-3 py-2 text-sm'/><button onClick={addEvent} className='rounded-xl bg-sky-600 px-3 text-white'><Plus size={18}/></button></div>
    {events.map(ev=><div key={ev.id} className='flex gap-2 rounded-lg bg-white/80 p-2 text-xs text-sky-950'><b className='shrink-0'>{dateLabel(ev.date)}</b><span className='flex-1 min-w-0'>{ev.text}</span><button onClick={()=>setEvents(events.filter(x=>x.id!==ev.id))}><Trash2 size={14}/></button></div>)}
   </section>
