@@ -89,7 +89,7 @@
         android:autoSizeMinTextSize="8sp"
         android:autoSizeMaxTextSize="10sp"
         android:autoSizeStepGranularity="1sp"
-        android:maxLines="2"
+        android:maxLines="1"
         android:ellipsize="end"
         android:includeFontPadding="false"
         android:visibility="gone" />
@@ -108,7 +108,7 @@
         android:autoSizeMinTextSize="8sp"
         android:autoSizeMaxTextSize="10sp"
         android:autoSizeStepGranularity="1sp"
-        android:maxLines="2"
+        android:maxLines="1"
         android:ellipsize="end"
         android:includeFontPadding="false"
         android:visibility="gone" />
@@ -127,7 +127,7 @@
         android:autoSizeMinTextSize="8sp"
         android:autoSizeMaxTextSize="10sp"
         android:autoSizeStepGranularity="1sp"
-        android:maxLines="2"
+        android:maxLines="1"
         android:ellipsize="end"
         android:includeFontPadding="false"
         android:visibility="gone" />
@@ -146,7 +146,7 @@
         android:autoSizeMinTextSize="8sp"
         android:autoSizeMaxTextSize="9sp"
         android:autoSizeStepGranularity="1sp"
-        android:maxLines="2"
+        android:maxLines="1"
         android:ellipsize="end"
         android:includeFontPadding="false"
         android:visibility="gone" />
