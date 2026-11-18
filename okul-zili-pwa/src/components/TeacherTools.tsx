@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { WeekSchedule } from '../types';
+import { DAYS_LIST } from '../utils/constants';
 import { StickyNote, ListChecks, CalendarDays, Plus, Trash2, Palette, ImagePlus, SlidersHorizontal, Smartphone, X, BellRing, CalendarCheck, CalendarClock } from 'lucide-react';
 
 type Task = { id: number; text: string; done: boolean };
@@ -23,7 +25,7 @@ const inThisWeek = (value: string) => {
   return target >= monday && target <= sunday;
 };
 
-export function TeacherTools() {
+export function TeacherTools({ scheduleData }: { scheduleData: WeekSchedule }) {
  const [notes,setNotes] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('okul_zili_notes') || '[]'); } catch { return []; } });
  const [note,setNote] = useState('');
  const [tasks,setTasks] = useState<Task[]>(() => { try { return JSON.parse(localStorage.getItem('okul_zili_tasks') || '[]'); } catch { return []; } });
@@ -80,6 +82,8 @@ export function TeacherTools() {
    reader.readAsDataURL(file);
  };
 
+ const lessonNotes = DAYS_LIST.flatMap(day => (scheduleData[day] || []).filter(slot => slot.type === 'ders' && Boolean(slot.notes?.trim())).map(slot => ({ day, start: slot.start, title: slot.title, note: slot.notes.trim() })));
+
  const thisWeek = [
    ...reminders.filter(x=>inThisWeek(x.date)).map(x=>({...x,kind:'Hatırlatıcı'})),
    ...events.filter(x=>inThisWeek(x.date)).map(x=>({...x,kind:'Etkinlik'}))
@@ -97,7 +101,12 @@ export function TeacherTools() {
   </div>
 
   <section className='rounded-2xl border border-amber-200 bg-amber-50/70 p-3 space-y-2'>
-   <h3 className='font-semibold text-sm text-amber-900 flex items-center gap-2'><StickyNote size={17}/> Ders dışı notlar</h3>
+   <h3 className='font-semibold text-sm text-amber-900 flex items-center gap-2'><StickyNote size={17}/> Ders notları</h3>
+   {lessonNotes.length ? <div className='space-y-1.5'>{lessonNotes.map((x,i)=><div key={x.day+x.start+i} className='rounded-lg bg-white/80 px-2.5 py-2 text-xs'><b className='text-amber-900'>{x.day} · {x.start} · {x.title}</b><p className='mt-1 text-slate-700'>{x.note}</p></div>)}</div> : <p className='text-xs text-amber-800/70'>Henüz ders notu eklenmemiş.</p>}
+  </section>
+
+  <section className='rounded-2xl border border-amber-200 bg-amber-50/70 p-3 space-y-2'>
+   <h3 className='font-semibold text-sm text-amber-900 flex items-center gap-2'><StickyNote size={17}/> Hızlı notlar</h3>
    <div className='flex gap-2'><input value={note} onChange={e=>setNote(e.target.value)} onKeyDown={e=>e.key==='Enter'&&note.trim()&&(setNotes([note.trim(),...notes]),setNote(''))} placeholder='Kısa not ekle...' className='min-w-0 flex-1 rounded-xl border border-amber-200 bg-white px-3 py-2 text-sm'/><button onClick={()=>{if(note.trim()){setNotes([note.trim(),...notes]);setNote('');}}} className='rounded-xl bg-amber-500 px-3 text-white'><Plus size={18}/></button></div>
    {notes.map((n,i)=><div key={i} className='flex items-start gap-2 rounded-xl bg-white/80 p-2 text-sm'><span className='flex-1'>{n}</span><button onClick={()=>setNotes(notes.filter((_,j)=>j!==i))} aria-label='Notu sil'><Trash2 size={15}/></button></div>)}
   </section>
