@@ -134,7 +134,7 @@ export const PhoneWidgetMode: React.FC<Props> = ({
     const isLunch = currentItem.type === 'ogle';
 
     title = isLunch ? 'Ara' : currentItem.title;
-    subText = nextItem ? `Sırada: ${nextItem.title} (${nextItem.start})` : 'Sırada: Okul Çıkışı (15:15)';
+    subText = nextItem ? `Sırada: ${nextItem.type === 'ogle' ? 'Ara' : nextItem.title} (${nextItem.start})` : 'Sırada: Okul Çıkışı (15:15)';
     countdownLabel = isLesson ? 'Teneffüs Ziline' : isLunch ? 'Ders Ziline' : 'Ders Ziline Kalan';
     badgeText = isLesson ? 'Şu An Ders' : isLunch ? 'Ara' : 'Teneffüs';
     badgeColor = isLesson
