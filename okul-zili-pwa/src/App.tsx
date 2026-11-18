@@ -314,7 +314,7 @@ export default function App() {
   };
 
   const handleExportJson = () => {
-    const blob = new Blob([JSON.stringify({ version: 2, scheduleData, notes: JSON.parse(localStorage.getItem('okul_zili_notes') || '[]'), tasks: JSON.parse(localStorage.getItem('okul_zili_tasks') || '[]'), events: JSON.parse(localStorage.getItem('okul_zili_events') || '[]'), theme: localStorage.getItem('okul_zili_theme') || 'classroom' }, null, 2)], {
+    const blob = new Blob([JSON.stringify({ version: 2, scheduleData, notes: JSON.parse(localStorage.getItem('okul_zili_notes') || '[]'), tasks: JSON.parse(localStorage.getItem('okul_zili_tasks') || '[]'), events: JSON.parse(localStorage.getItem('okul_zili_events') || '[]'), reminders: JSON.parse(localStorage.getItem('okul_zili_reminders') || '[]'), theme: localStorage.getItem('okul_zili_theme') || 'classroom' }, null, 2)], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(blob);
@@ -339,6 +339,8 @@ export default function App() {
           if (Array.isArray(parsed.notes)) localStorage.setItem('okul_zili_notes', JSON.stringify(parsed.notes));
           if (Array.isArray(parsed.tasks)) localStorage.setItem('okul_zili_tasks', JSON.stringify(parsed.tasks));
           if (Array.isArray(parsed.events)) localStorage.setItem('okul_zili_events', JSON.stringify(parsed.events));
+          if (Array.isArray(parsed.reminders)) localStorage.setItem('okul_zili_reminders', JSON.stringify(parsed.reminders));
+          try { (window as any).SchoolBellWidget?.updateAgenda?.(JSON.stringify({ notes: parsed.notes || [], tasks: parsed.tasks || [], events: parsed.events || [], reminders: parsed.reminders || [] })); } catch {}
           if (parsed.theme) localStorage.setItem('okul_zili_theme', parsed.theme);
           showToast('Yedek program ve ajanda geri yüklendi!');
         } else {
