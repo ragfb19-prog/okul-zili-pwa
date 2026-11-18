@@ -205,7 +205,7 @@ export const LiveCountdownWidget: React.FC<Props> = ({ todaySlots, now, onPlayBe
     ? 'bg-amber-500/30 text-amber-200 border-amber-400/30'
     : 'bg-emerald-500/30 text-emerald-200 border-emerald-400/30';
 
-  let badgeText = isLesson ? 'Şu An Ders' : isLunch ? 'Öğle Arası' : 'Teneffüs (Dinlenme)';
+  let badgeText = isLesson ? 'Şu An Ders' : isLunch ? 'Ara' : 'Teneffüs (Dinlenme)';
   let countdownLabel = isLesson ? 'Teneffüs Ziline Kalan' : 'Ders Ziline Kalan';
 
   return (
