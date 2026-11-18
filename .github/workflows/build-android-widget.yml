@@ -56,8 +56,8 @@ jobs:
       - name: Publish offline APK release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: okul-zili-widget-v1.4.2
-          name: Okul Zili Android Offline v1.4.2
-          body: Restored lesson notes, quick notes, and open tasks in the bell widget; added agenda synchronization from the teacher tools; upcoming calendar event appears only within seven days.
+          tag_name: okul-zili-widget-v1.4.3
+          name: Okul Zili Android Offline v1.4.3
+          body: Redesigned compact widget with lesson notes only, separate colored tasks and reminders, week-based calendar display without countdown, in-app agenda, and Google Calendar modal integration.
           files: android-widget/app/build/outputs/apk/debug/app-debug.apk
           make_latest: true
