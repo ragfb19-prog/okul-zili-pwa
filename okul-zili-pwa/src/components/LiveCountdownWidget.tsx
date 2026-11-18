@@ -227,7 +227,7 @@ export const LiveCountdownWidget: React.FC<Props> = ({ todaySlots, now, onPlayBe
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
-            <span>{currentItem.title}</span>
+            <span>{isLunch ? 'Ara' : currentItem.title}</span>
             {currentItem.notes && (
               <span className="text-xs px-2 py-0.5 rounded-md bg-white/10 text-indigo-200 font-normal">
                 {currentItem.notes}
@@ -241,7 +241,7 @@ export const LiveCountdownWidget: React.FC<Props> = ({ todaySlots, now, onPlayBe
               Sırada:{' '}
               {nextItem ? (
                 <strong>
-                  {nextItem.title} ({nextItem.start})
+                  {nextItem.type === 'ogle' ? 'Ara' : nextItem.title} ({nextItem.start})
                 </strong>
               ) : (
                 <strong>Okul Çıkışı (15:15)</strong>
