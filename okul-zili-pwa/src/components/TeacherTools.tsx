@@ -82,7 +82,7 @@ export function TeacherTools({ scheduleData }: { scheduleData: WeekSchedule }) {
    reader.readAsDataURL(file);
  };
 
- const lessonNotes = DAYS_LIST.flatMap(day => (scheduleData[day] || []).filter(slot => slot.type === 'ders' && Boolean(slot.notes?.trim())).map(slot => ({ day, start: slot.start, title: slot.title, note: slot.notes.trim() })));
+ const lessonNotes = DAYS_LIST.flatMap(day => (scheduleData[day] || []).filter(slot => slot.type === 'ders' && Boolean(slot.notes?.trim())).map(slot => ({ day, start: slot.start, title: slot.title, note: (slot.notes || '').trim() })));
 
  const thisWeek = [
    ...reminders.filter(x=>inThisWeek(x.date)).map(x=>({...x,kind:'Hatırlatıcı'})),
