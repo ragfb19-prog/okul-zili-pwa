@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Okul Zili</string>
     <string name="widget_description">Ders ve teneffüs geri sayımı</string>
+    <string name="calendar_widget_description">Yaklaşan okul ve özel gün takvimi</string>
+    <string name="combined_widget_description">Zil, takvim ve haftanın atasözü</string>
 </resources>
