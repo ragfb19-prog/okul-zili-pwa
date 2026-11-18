@@ -133,10 +133,10 @@ export const PhoneWidgetMode: React.FC<Props> = ({
     const isLesson = currentItem.type === 'ders';
     const isLunch = currentItem.type === 'ogle';
 
-    title = currentItem.title;
+    title = isLunch ? 'Ara' : currentItem.title;
     subText = nextItem ? `Sırada: ${nextItem.title} (${nextItem.start})` : 'Sırada: Okul Çıkışı (15:15)';
-    countdownLabel = isLesson ? 'Teneffüs Ziline' : isLunch ? 'Ders Ziline (Öğle Arası)' : 'Ders Ziline Kalan';
-    badgeText = isLesson ? 'Şu An Ders' : isLunch ? 'Öğle Arası' : 'Teneffüs';
+    countdownLabel = isLesson ? 'Teneffüs Ziline' : isLunch ? 'Ders Ziline' : 'Ders Ziline Kalan';
+    badgeText = isLesson ? 'Şu An Ders' : isLunch ? 'Ara' : 'Teneffüs';
     badgeColor = isLesson
       ? 'bg-indigo-500/30 text-indigo-200 border-indigo-400/30'
       : isLunch
