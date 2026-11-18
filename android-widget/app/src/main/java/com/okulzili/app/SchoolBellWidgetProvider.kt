@@ -86,7 +86,7 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
                 }
             } catch (_: Exception) { }
         }
-        val noteText = if (lessonNotes.isEmpty()) "" else "DERS NOTLARI\n" + lessonNotes.take(2).joinToString("  •  ")
+        val noteText = if (lessonNotes.isEmpty()) "" else "DERS NOTU • " + lessonNotes.firstOrNull().orEmpty()
         views.setTextViewText(R.id.widget_note, noteText)
         views.setViewVisibility(R.id.widget_note, if (noteText.isBlank()) View.GONE else View.VISIBLE)
 
@@ -100,7 +100,7 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
                 if (!item.optBoolean("done", false) && text.isNotBlank()) taskLines.add("□ $text")
             }
         } catch (_: Exception) { }
-        val taskText = if (taskLines.isEmpty()) "" else "GÖREVLER\n" + taskLines.take(2).joinToString("  •  ")
+        val taskText = if (taskLines.isEmpty()) "" else "GÖREV • " + taskLines.firstOrNull().orEmpty()
         views.setTextViewText(R.id.widget_tasks, taskText)
         views.setViewVisibility(R.id.widget_tasks, if (taskText.isBlank()) View.GONE else View.VISIBLE)
 
@@ -133,7 +133,7 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
             }
         }
         addDatedItems(agenda.optJSONArray("reminders"), reminderLines, "•")
-        val reminderText = if (reminderLines.isEmpty()) "" else "HATIRLATICILAR\n" + reminderLines.take(2).joinToString("  •  ")
+        val reminderText = if (reminderLines.isEmpty()) "" else "HATIRLATICI • " + reminderLines.firstOrNull().orEmpty()
         views.setTextViewText(R.id.widget_reminders, reminderText)
         views.setViewVisibility(R.id.widget_reminders, if (reminderText.isBlank()) View.GONE else View.VISIBLE)
 
@@ -143,7 +143,7 @@ class SchoolBellWidgetProvider : AppWidgetProvider() {
         if (officialDays in 0..daysToSunday) {
             eventLines.add("• ${if (officialDays == 0) "BUGÜN" else official.second} • ${official.first}")
         }
-        val eventText = if (eventLines.isEmpty()) "" else "TAKVİM\n" + eventLines.take(2).joinToString("  •  ")
+        val eventText = if (eventLines.isEmpty()) "" else "TAKVİM • " + eventLines.firstOrNull().orEmpty()
         views.setTextViewText(R.id.widget_quick_note, eventText)
         views.setViewVisibility(R.id.widget_quick_note, if (eventText.isBlank()) View.GONE else View.VISIBLE)
 
