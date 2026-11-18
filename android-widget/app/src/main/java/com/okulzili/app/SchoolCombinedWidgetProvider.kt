@@ -97,12 +97,13 @@ class SchoolCombinedWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.combined_lesson, lesson)
 
             val event = SchoolCalendarData.nextEvent(now)
+            val daysToSunday = (Calendar.SUNDAY - now.get(Calendar.DAY_OF_WEEK) + 7) % 7
             val daysUntil = if (event.third == "BUGÜN") 0 else event.third.substringBefore(" ").toIntOrNull() ?: Int.MAX_VALUE
-            val showEvent = daysUntil in 0..7
+            val showEvent = daysUntil in 0..daysToSunday
             views.setViewVisibility(R.id.combined_event, if (showEvent) View.VISIBLE else View.GONE)
             views.setTextViewText(
                 R.id.combined_event,
-                if (showEvent) "TAKVİM  •  ${event.first}  •  ${event.second}  •  ${event.third}" else ""
+                if (showEvent) "TAKVİM  •  ${event.first}  •  ${event.second}  •  ${if (daysUntil == 0) "BUGÜN" else "BU HAFTA"}" else ""
             )
 
             val openApp = PendingIntent.getActivity(
