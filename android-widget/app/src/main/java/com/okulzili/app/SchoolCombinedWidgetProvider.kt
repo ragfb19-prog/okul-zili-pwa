@@ -59,6 +59,7 @@ class SchoolCombinedWidgetProvider : AppWidgetProvider() {
                     if (slots != null) {
                         for (i in 0 until slots.length()) {
                             val slot = slots.optJSONObject(i) ?: continue
+                            if (slot.optString("type") != "ders") continue
                             val start = toMinutes(slot.optString("start"))
                             val end = toMinutes(slot.optString("end"))
                             if (start >= 0 && end > start && minuteNow >= start && minuteNow < end) {
