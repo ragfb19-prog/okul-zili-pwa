@@ -63,7 +63,7 @@ export const CalendarSyncModal: React.FC<Props> = ({
   // Manual event creation form
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [newSummary, setNewSummary] = useState<string>('');
-  const [newDate, setNewDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [newDate, setNewDate] = useState<string>(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; });
   const [newStartTime, setNewStartTime] = useState<string>('10:00');
   const [newEndTime, setNewEndTime] = useState<string>('11:00');
 
