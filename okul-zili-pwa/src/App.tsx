@@ -464,7 +464,7 @@ export default function App() {
                 <Calendar className="w-4 h-4" /> Google Takvim
               </button>
             </div>
-            <TeacherTools />
+            <TeacherTools scheduleData={scheduleData} />
           </div>
         ) : (
         <>
