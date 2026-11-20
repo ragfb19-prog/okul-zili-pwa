@@ -4,5 +4,5 @@
 <TextView android:id="@+id/calendar_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tarih" android:textColor="#CFD8E8" android:textSize="12sp" android:layout_marginTop="4dp"/>
 <TextView android:id="@+id/calendar_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Yaklaşan etkinlik" android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="6dp" android:maxLines="2" android:ellipsize="end"/>
 <TextView android:id="@+id/calendar_detail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Etkinlik tarihi" android:textColor="#CBD5E1" android:textSize="12sp" android:layout_marginTop="3dp"/>
-<TextView android:id="@+id/calendar_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="BU HAFTA" android:textColor="#FBBF24" android:textSize="12sp" android:textStyle="bold" android:textStyle="bold" android:layout_marginTop="6dp"/>
+<TextView android:id="@+id/calendar_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="BU HAFTA" android:textColor="#FBBF24" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="6dp"/>
 </LinearLayout>
